@@ -1,5 +1,6 @@
 use crate::git::RepositoryError;
 use std::process::Command;
+use std::process::ExitStatus;
 
 pub fn git_command<P, A, S>(dir: P, args: A) -> Result<String, RepositoryError>
     where P : AsRef<std::path::Path>,
@@ -7,30 +8,41 @@ pub fn git_command<P, A, S>(dir: P, args: A) -> Result<String, RepositoryError>
           S : AsRef<std::ffi::OsStr> {
     let mut command = Command::new("git");
 
-    command.current_dir(dir);
-    command.args(args);
+    command.current_dir(dir).args(args);
 
     let output = command.output()?;
 
-    if !output.status.success() {
-        let message = match output.status.code() {
-            Some(code) => {
-                format!("Error executing command: {}", code)
-            }
-            _ => {
-                "Error executing command".to_owned()
-            }
-        };
+    check_for_error(output.status)?;
 
-        return Result::Err(
-            RepositoryError::with_string(message)
-        )
-    }
+    let stdout_as_string = String::from_utf8(output.stdout)?;
 
-    let stdout = command.output()?.stdout;
-    let output = String::from_utf8(stdout)?;
-
-    Result::Ok(output)
+    Result::Ok(stdout_as_string)
 }
 
-// TODO: Check if is possible to use fn From
+fn check_for_error(status: ExitStatus) -> Result<(), RepositoryError> {
+    if status.success() {
+        return Result::Ok(())
+    }
+
+    let error = match status.code() {
+        Some(code) => 
+            RepositoryError::with_string(format!("Error executing command: {}", code))
+        _ => {
+            RepositoryError::with_str("Error executing command")
+        }
+    };
+
+    Result::Err(error)
+}
+
+impl From<std::io::Error> for RepositoryError {
+    fn from(error: std::io::Error) -> Self {
+        RepositoryError::with_source(Box::new(error))
+    }
+}
+
+impl From<std::string::FromUtf8Error> for RepositoryError {
+    fn from(error: std::string::FromUtf8Error) -> Self {
+        RepositoryError::with_source(Box::new(error))
+    }
+}

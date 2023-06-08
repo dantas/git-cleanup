@@ -36,18 +36,6 @@ impl std::fmt::Display for RepositoryError {
     }
 }
 
-impl From<std::io::Error> for RepositoryError {
-    fn from(error: std::io::Error) -> Self {
-        RepositoryError::with_source(Box::new(error))
-    }
-}
-
-impl From<std::string::FromUtf8Error> for RepositoryError {
-    fn from(error: std::string::FromUtf8Error) -> Self {
-        RepositoryError::with_source(Box::new(error))
-    }
-}
-
 impl std::error::Error for RepositoryError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
