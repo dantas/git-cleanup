@@ -25,8 +25,9 @@ fn check_for_error(status: ExitStatus) -> Result<(), RepositoryError> {
     }
 
     let error = match status.code() {
-        Some(code) => 
+        Some(code) => {
             RepositoryError::with_string(format!("Error executing command: {}", code))
+        }
         _ => {
             RepositoryError::with_str("Error executing command")
         }
