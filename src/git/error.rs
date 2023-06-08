@@ -1,13 +1,19 @@
+use std::borrow::Cow;
+
 #[derive(Debug)]
 pub enum RepositoryError {
     Source(Box<dyn std::error::Error>),
-    Message(String),
+    Message(Cow<'static, str>),
 }
 
 // TODO: Is with_ the corret prefix for the below constructos?
-impl RepositoryError {
-    pub fn with_message(message: String) -> Self {
-        RepositoryError::Message(message)
+impl RepositoryError{
+    pub fn with_str(message: &'static str) -> Self {
+        RepositoryError::Message(Cow::Borrowed(message))
+    }
+
+    pub fn with_string(message: String) -> Self {
+        RepositoryError::Message(Cow::Owned(message))
     }
 
     pub fn with_source(source: Box<dyn std::error::Error>) -> Self {

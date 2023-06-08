@@ -1,8 +1,9 @@
 use git::RepositoryError;
+use git::Repository;
 
 pub mod git;
 
-fn main() -> Result<(), git::RepositoryError> {
+fn main() -> Result<(), RepositoryError> {
     // TODO: Setup integration tests to cover other possible repository layouts
  
     let repository = repository_status("/home/dantas/Documents/git-deleted-branches/test_dir/local")?;
@@ -48,7 +49,7 @@ fn execute_git<P, A, S>(dir: P, args: A) -> Result<String, RepositoryError>
         };
 
         return Result::Err(
-            git::RepositoryError::with_message(message)
+            RepositoryError::with_string(message)
         )
     }
 
@@ -81,14 +82,14 @@ fn repository_status<P : AsRef<std::path::Path>> (dir: P) -> Result<git::Reposit
                 branches.push(branch);
             }
             None => {
-                return Result::Err(git::RepositoryError::with_message("Error parsing a line".to_owned()) )
+                return Result::Err(RepositoryError::with_str("Error parsing a line") )
             }
         }
     }
     
     match current_branch {
         Some(branch) => {
-            let repository = git::Repository {
+            let repository = Repository {
                 current_branch: branch,
                 branches,
             };
@@ -96,7 +97,7 @@ fn repository_status<P : AsRef<std::path::Path>> (dir: P) -> Result<git::Reposit
             Result::Ok(repository)
         }
         None => Result::Err(
-            git::RepositoryError::with_message("Current branch not found".to_owned())
+            RepositoryError::with_str("Current branch not found")
         )
     }
 }
