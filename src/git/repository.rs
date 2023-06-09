@@ -12,41 +12,22 @@ pub struct Repository {
 pub fn repository<P : AsRef<std::path::Path>> (dir: P) -> Result<Repository, RepositoryError> {
     let output: String = execute::git_command(dir, ["branch", "-vv"])?;
 
-    let results: Vec<Option<ParseBranchResult>> =
+    let results: Vec<ParseBranchResult> =
         output
             .lines()
-            .map(Branch::parse_from_vv_line)
+            .filter_map(Branch::parse_from_vv_line)
             .collect();
-
-    let mut current_branch = None;
-    let mut branches = Vec::with_capacity(results.len());
-
-    for result in results {
-        match result {
-            Some(ParseBranchResult { branch, is_current }) => {
-                if is_current {
-                    current_branch = Some(branch.clone());
-                }
-
-                branches.push(branch);
-            }
-            None => {
-                return Result::Err(RepositoryError::with_str("Error parsing a line") )
-            }
-        }
-    }
     
-    match current_branch {
-        Some(branch) => {
-            let repository = Repository {
-                current_branch: branch,
-                branches,
-            };
+    if let Some(ParseBranchResult { branch, .. }) = results.iter().find(|result| result.is_current) {
+        let repository = Repository {
+            current_branch: branch.clone(),
+            branches: results.into_iter().map(|result| result.branch).collect(),
+        };
 
-            Result::Ok(repository)
-        }
-        None => Result::Err(
-            RepositoryError::with_str("Current branch not found")
-        )
-    }
+        return Result::Ok(repository)
+    };
+
+    Result::Err(
+        RepositoryError::with_str("Current branch not found")
+    )
 }
