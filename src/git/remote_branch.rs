@@ -5,8 +5,7 @@ pub struct RemoteBranch {
 }
 
 impl RemoteBranch {
-    // TODO: Should we use new? Send error with reason why we failed?
-    pub fn from_vv_column(string: &str) -> Option<RemoteBranch> {
+    pub fn try_from_vv_column(string: &str) -> Option<RemoteBranch> {
         let index;
 
         if let Some(i) = string.find('/') {
@@ -37,7 +36,7 @@ impl std::fmt::Display for RemoteBranch {
 
 #[test]
 fn test_remote_branch_from_vv() {
-    if let Some(remote_branch) = RemoteBranch::from_vv_column("[origin/branch2]") {
+    if let Some(remote_branch) = RemoteBranch::try_from_vv_column("[origin/branch2]") {
         assert_eq!(remote_branch.name, "branch2");
         assert_eq!(remote_branch.remote, "origin");
         return;
