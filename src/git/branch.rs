@@ -21,7 +21,7 @@ pub struct ParseBranchResult {
 }
 
 impl Branch {
-    pub fn parse_from_vv_line(line: &str) -> Option<ParseBranchResult> {
+    pub fn from_vv_line(line: &str) -> Option<ParseBranchResult> {
         let words: Vec<&str> = line.split_whitespace().collect();
 
         let branch = match words.as_slice() {
@@ -44,7 +44,7 @@ impl Branch {
     }
 
     fn new_parse_branch_result(branch_name: &str, maybe_origin_branch: &str, is_current: bool) -> ParseBranchResult {
-        let remote_branch = RemoteBranch::parse_from_vv_column(maybe_origin_branch);
+        let remote_branch = RemoteBranch::from_vv_column(maybe_origin_branch);
 
         ParseBranchResult {
             branch: Branch::new(branch_name.to_owned(), remote_branch),
@@ -66,7 +66,7 @@ impl Branch {
 
 #[test]
 fn test_parse_detached_head() {
-    let sut = Branch::parse_from_vv_line("* (HEAD detached at 1f02cc2) 1f02cc2 Initial commit");
+    let sut = Branch::from_vv_line("* (HEAD detached at 1f02cc2) 1f02cc2 Initial commit");
 
     let expected =
         ParseBranchResult {
@@ -82,7 +82,7 @@ fn test_parse_detached_head() {
 
 #[test]
 fn test_parse_currently_checked_out_tracked_branch() {
-    let sut = Branch::parse_from_vv_line("*  main  1f02cc2 [origin/main] Initial commit");
+    let sut = Branch::from_vv_line("*  main  1f02cc2 [origin/main] Initial commit");
 
     let expected =
         ParseBranchResult {
@@ -104,7 +104,7 @@ fn test_parse_currently_checked_out_tracked_branch() {
 
 #[test]
 fn test_parse_tracked_branch() {
-    let sut = Branch::parse_from_vv_line("develop    1f02cc2 Initial commit");
+    let sut = Branch::from_vv_line("develop    1f02cc2 Initial commit");
 
     let expected =
         ParseBranchResult {
@@ -125,22 +125,22 @@ fn test_parse_tracked_branch() {
 #[test]
 fn test_parse_invalid_lines() {
     assert_eq!(
-        Branch::parse_from_vv_line(" "),
+        Branch::from_vv_line(" "),
         None
     );
 
     assert_eq!(
-        Branch::parse_from_vv_line("first"),
+        Branch::from_vv_line("first"),
         None
     );
 
     assert_eq!(
-        Branch::parse_from_vv_line("* first"),
+        Branch::from_vv_line("* first"),
         None
     );
 
     assert_eq!(
-        Branch::parse_from_vv_line("* first second"),
+        Branch::from_vv_line("* first second"),
         None
     );
 }

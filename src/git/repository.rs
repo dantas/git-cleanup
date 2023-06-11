@@ -15,7 +15,7 @@ pub fn repository<P : AsRef<std::path::Path>> (dir: P) -> Result<Repository, Rep
     let results: Vec<ParseBranchResult> =
         output
             .lines()
-            .filter_map(Branch::parse_from_vv_line)
+            .filter_map(Branch::from_vv_line)
             .collect();
     
     if let Some(ParseBranchResult { branch, .. }) = results.iter().find(|result| result.is_current) {
