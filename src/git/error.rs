@@ -6,7 +6,8 @@ pub enum RepositoryError {
     Message(Cow<'static, str>),
 }
 
-// TODO: Is with_ the corret prefix for the below constructos?
+// Most of this code can be automated by the crate thiserror
+
 impl RepositoryError{
     pub fn with_str(message: &'static str) -> Self {
         RepositoryError::Message(Cow::Borrowed(message))
