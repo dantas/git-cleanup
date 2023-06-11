@@ -26,10 +26,10 @@ fn check_for_error(status: ExitStatus) -> Result<(), RepositoryError> {
 
     let error = match status.code() {
         Some(code) => {
-            RepositoryError::with_string(format!("Error executing command: {}", code))
+            RepositoryError::new_with_string(format!("Error executing command: {}", code))
         }
         _ => {
-            RepositoryError::with_str("Error executing command")
+            RepositoryError::new_with_str("Error executing command")
         }
     };
 
@@ -38,12 +38,12 @@ fn check_for_error(status: ExitStatus) -> Result<(), RepositoryError> {
 
 impl From<std::io::Error> for RepositoryError {
     fn from(error: std::io::Error) -> Self {
-        RepositoryError::with_source(Box::new(error))
+        RepositoryError::new_with_source(Box::new(error))
     }
 }
 
 impl From<std::string::FromUtf8Error> for RepositoryError {
     fn from(error: std::string::FromUtf8Error) -> Self {
-        RepositoryError::with_source(Box::new(error))
+        RepositoryError::new_with_source(Box::new(error))
     }
 }

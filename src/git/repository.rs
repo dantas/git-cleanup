@@ -28,6 +28,6 @@ pub fn repository<P : AsRef<std::path::Path>> (dir: P) -> Result<Repository, Rep
     };
 
     Result::Err(
-        RepositoryError::with_str("Current branch not found")
+        RepositoryError::new_with_str("Current branch not found")
     )
 }

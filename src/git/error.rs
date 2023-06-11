@@ -9,15 +9,15 @@ pub enum RepositoryError {
 // Most of this code can be automated by the crate thiserror
 
 impl RepositoryError{
-    pub fn with_str(message: &'static str) -> Self {
+    pub fn new_with_str(message: &'static str) -> Self {
         RepositoryError::Message(Cow::Borrowed(message))
     }
 
-    pub fn with_string(message: String) -> Self {
+    pub fn new_with_string(message: String) -> Self {
         RepositoryError::Message(Cow::Owned(message))
     }
 
-    pub fn with_source(source: Box<dyn std::error::Error>) -> Self {
+    pub fn new_with_source(source: Box<dyn std::error::Error>) -> Self {
         RepositoryError::Source(source)
     }
 }
