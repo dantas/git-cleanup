@@ -42,5 +42,20 @@ fn test_remote_branch_from_vv() {
         return;
     }
 
-    panic!("/ not found in remote branch");
+    panic!("try_from_vv_column didn't detect valid string");
+}
+
+#[test]
+fn test_parse_invalid_lines() {
+    if RemoteBranch::try_from_vv_column("origin/branch2]") != None {
+        panic!("try_from_vv_column interpreted missing [ as a valid remote branch");
+    }
+
+    if RemoteBranch::try_from_vv_column("[origin/branch2") != None {
+        panic!("try_from_vv_column interpreted missing ] as a valid remote branch");
+    }
+
+    if RemoteBranch::try_from_vv_column("originbranch2]") != None {
+        panic!("try_from_vv_column interpreted missing / as a valid remote branch");
+    }
 }
