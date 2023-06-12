@@ -1,8 +1,8 @@
-use crate::git::RepositoryError;
+use crate::git::GitError;
 use std::process::Command;
 use std::process::ExitStatus;
 
-pub fn git_command<P, A, S>(dir: P, args: A) -> Result<String, RepositoryError>
+pub fn git_command<P, A, S>(dir: P, args: A) -> Result<String, GitError>
     where P : AsRef<std::path::Path>,
           A : AsRef<[S]> + IntoIterator<Item=S>,
           S : AsRef<std::ffi::OsStr> {
@@ -19,31 +19,31 @@ pub fn git_command<P, A, S>(dir: P, args: A) -> Result<String, RepositoryError>
     Result::Ok(stdout_as_string)
 }
 
-fn check_for_error(status: ExitStatus) -> Result<(), RepositoryError> {
+fn check_for_error(status: ExitStatus) -> Result<(), GitError> {
     if status.success() {
         return Result::Ok(())
     }
 
     let error = match status.code() {
         Some(code) => {
-            RepositoryError::new_with_string(format!("Error executing command: {}", code))
+            GitError::new_with_string(format!("Error executing command: {}", code))
         }
         _ => {
-            RepositoryError::new_with_str("Error executing command")
+            GitError::new_with_str("Error executing command")
         }
     };
 
     Result::Err(error)
 }
 
-impl From<std::io::Error> for RepositoryError {
+impl From<std::io::Error> for GitError {
     fn from(error: std::io::Error) -> Self {
-        RepositoryError::new_with_source(Box::new(error))
+        GitError::new_with_source(Box::new(error))
     }
 }
 
-impl From<std::string::FromUtf8Error> for RepositoryError {
+impl From<std::string::FromUtf8Error> for GitError {
     fn from(error: std::string::FromUtf8Error) -> Self {
-        RepositoryError::new_with_source(Box::new(error))
+        GitError::new_with_source(Box::new(error))
     }
 }

@@ -1,34 +1,34 @@
 use std::borrow::Cow;
 
 #[derive(Debug)]
-pub enum RepositoryError {
+pub enum GitError {
     Source(Box<dyn std::error::Error>),
     Message(Cow<'static, str>),
 }
 
 // Most of this code can be automated by the crate thiserror
 
-impl RepositoryError{
+impl GitError {
     pub fn new_with_str(message: &'static str) -> Self {
-        RepositoryError::Message(Cow::Borrowed(message))
+        GitError::Message(Cow::Borrowed(message))
     }
 
     pub fn new_with_string(message: String) -> Self {
-        RepositoryError::Message(Cow::Owned(message))
+        GitError::Message(Cow::Owned(message))
     }
 
     pub fn new_with_source(source: Box<dyn std::error::Error>) -> Self {
-        RepositoryError::Source(source)
+        GitError::Source(source)
     }
 }
 
-impl std::fmt::Display for RepositoryError {
+impl std::fmt::Display for GitError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            RepositoryError::Message(message) => {
+            GitError::Message(message) => {
                 write!(f, "RepositoryError, message: {}", message)?;
             }
-            RepositoryError::Source(_) => {
+            GitError::Source(_) => {
                 write!(f, "RepositoryError, caused by source error")?;
             }
         };
@@ -37,13 +37,13 @@ impl std::fmt::Display for RepositoryError {
     }
 }
 
-impl std::error::Error for RepositoryError {
+impl std::error::Error for GitError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
-            RepositoryError::Message(_) => {
+            GitError::Message(_) => {
                 None
             }
-            RepositoryError::Source(box_source) => {
+            GitError::Source(box_source) => {
                 Some(box_source.as_ref())
             }
         }

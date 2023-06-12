@@ -1,5 +1,5 @@
 use crate::git::Branch;
-use crate::git::RepositoryError;
+use crate::git::GitError;
 use crate::git::execute;
 
 #[allow(unused_imports)]
@@ -11,13 +11,13 @@ pub struct Repository {
     pub branches: Vec<Branch>
 }
 
-pub fn repository<P : AsRef<std::path::Path>> (dir: P) -> Result<Repository, RepositoryError> {
+pub fn repository<P : AsRef<std::path::Path>> (dir: P) -> Result<Repository, GitError> {
     let branch_vv_stdout: String = execute::git_command(dir, ["branch", "-vv"])?;
     Repository::from_vv_stdout(branch_vv_stdout)
 }
 
 impl Repository {
-    fn from_vv_stdout<S : AsRef<str>>(command_stdout: S) -> Result<Repository, RepositoryError> {
+    fn from_vv_stdout<S : AsRef<str>>(command_stdout: S) -> Result<Repository, GitError> {
         let mut branches = Vec::new();
         let mut current_branch = None;
     
@@ -42,7 +42,7 @@ impl Repository {
             }
             None => {
                 Result::Err(
-                    RepositoryError::new_with_str("Current branch not found")
+                    GitError::new_with_str("Current branch not found")
                 )
             }
         }    

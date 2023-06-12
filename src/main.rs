@@ -1,8 +1,8 @@
-use git::RepositoryError;
+use git::GitError;
 
 pub mod git;
 
-fn main() -> Result<(), RepositoryError> {
+fn main() -> Result<(), GitError> {
     // TODO: Setup integration tests to cover other possible repository layouts
  
     let repository = git::repository("/home/dantas/Documents/git-deleted-branches/test_dir/local")?;
