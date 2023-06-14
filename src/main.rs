@@ -1,25 +1,23 @@
-use git::GitError;
+mod args;
+mod git;
+mod commands;
 
-pub mod git;
+use std::env;
+use git::GitError;
+use args::VecArgs;
+
+// TODO: Setup integration tests to cover other possible repository layouts
 
 fn main() -> Result<(), GitError> {
-    // TODO: Setup integration tests to cover other possible repository layouts
- 
-    let repository = git::repository("/home/dantas/Documents/git-deleted-branches/test_dir/local")?;
+    let repository = git::repository(env::current_dir()?)?;
 
-    for branch in &repository.branches {
-        if branch == &repository.current_branch {
-            print!("* ")
-        }
-        
-        match branch {
-            git::Branch::Tracked { name, remote } => {
-                println!("{} => [{}]", name, remote)
-            }
-            git::Branch::Local { name } => {
-                println!("{}", name)
-            }
-            git:: Branch::Detached => println!("Detached")
+    match VecArgs::new().as_vec_str().as_slice() {
+        ["list"] => commands::list(&repository),
+        ["clean", args @ ..] => commands::clean(repository, args),
+        _ => {
+            return Err(
+                GitError::new_with_str("Unrecognized command pattern")
+            );
         }
     }
 
