@@ -6,10 +6,10 @@ pub struct RemoteBranch {
 
 impl RemoteBranch {
     pub fn try_from_vv_column(string: &str) -> Option<RemoteBranch> {
-        let index;
+        let index_slash;
 
         if let Some(i) = string.find('/') {
-            index = i;
+            index_slash = i;
         } else {
             return None;
         }
@@ -18,9 +18,16 @@ impl RemoteBranch {
             return None;
         }
 
+        let index_ending = 
+            if let Some(index_colon) = string.find(':') {
+                index_colon
+            } else {
+                string.len()-1
+            };
+
         let remote_branch = RemoteBranch {
-            remote: string[1..index].to_owned(),
-            name: string[index+1..string.len()-1].to_owned(), 
+            remote: string[1..index_slash].to_owned(),
+            name: string[index_slash+1..index_ending].to_owned(), 
         };
 
         return Some(remote_branch)
@@ -35,9 +42,20 @@ impl std::fmt::Display for RemoteBranch {
 }
 
 #[test]
-fn test_remote_branch_from_vv() {
+fn test_remote_branch() {
     if let Some(remote_branch) = RemoteBranch::try_from_vv_column("[origin/branch2]") {
         assert_eq!(remote_branch.name, "branch2");
+        assert_eq!(remote_branch.remote, "origin");
+        return;
+    }
+
+    panic!("try_from_vv_column didn't detect valid string");
+}
+
+#[test]
+fn test_remote_branch_ahead_of_origin() {
+    if let Some(remote_branch) = RemoteBranch::try_from_vv_column("[origin/main: ahead 1]") {
+        assert_eq!(remote_branch.name, "main");
         assert_eq!(remote_branch.remote, "origin");
         return;
     }
