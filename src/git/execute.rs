@@ -14,14 +14,14 @@ pub fn git_command<P, A, S>(dir: P, args: A) -> Result<String, GitError>
 
     let output = command.output()?;
 
-    check_for_error(output.status)?;
+    check_for_success(output.status)?;
 
     let stdout_as_string = String::from_utf8(output.stdout)?;
 
     Result::Ok(stdout_as_string)
 }
 
-fn check_for_error(status: ExitStatus) -> Result<(), GitError> {
+fn check_for_success(status: ExitStatus) -> Result<(), GitError> {
     if status.success() {
         return Result::Ok(())
     }
