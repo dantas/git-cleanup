@@ -23,36 +23,42 @@ pub struct ParseBranchResult {
     pub is_current: bool
 }
 
-impl Branch {
-    pub fn from_vv_line(line: &str) -> Result<ParseBranchResult, GitError> {
-        let components = split_components(line)?;
-
-        let branch = match components.as_slice() {
-            ["*", "(HEAD", ..] => { 
-                ParseBranchResult {
-                    branch: Self::Detached,
-                    is_current: true,
-                }
-            }
-            ["*", &ref branch_name, _, &ref maybe_origin_branch, ..] => {
-                Branch::new_parse_branch_result(branch_name, maybe_origin_branch, true)
-            }
-            [&ref branch_name, _, &ref maybe_origin_branch, ..] if branch_name != "*" => {
-                Branch::new_parse_branch_result(branch_name, maybe_origin_branch, false)
-            }
-            _ => return Result::Err(GitError::new_with_string(format!("String format not recognized {}", line)))
-        };
-
-        Result::Ok(branch)
-    }
-
-    fn new_parse_branch_result(branch_name: &str, maybe_origin_branch: &str, is_current: bool) -> ParseBranchResult {
+impl ParseBranchResult {
+    fn new(branch_name: &str, maybe_origin_branch: &str, is_current: bool) -> ParseBranchResult {
         let remote_branch = RemoteBranch::try_from_vv_column(maybe_origin_branch);
 
         ParseBranchResult {
             branch: Branch::new(branch_name.to_owned(), remote_branch),
             is_current,
         }
+    }
+
+    fn new_detached() -> Self {
+        ParseBranchResult {
+            branch: Branch::Detached,
+            is_current: true,
+        }
+    }
+}
+
+impl Branch {
+    pub fn from_vv_line(line: &str) -> Result<ParseBranchResult, GitError> {
+        let components = split_components(line)?;
+
+        let branch = match components.as_slice() {
+            ["*", "(HEAD", ..] => { 
+                ParseBranchResult::new_detached()
+            }
+            ["*", &ref branch_name, _, &ref maybe_origin_branch, ..] => {
+                ParseBranchResult::new(branch_name, maybe_origin_branch, true)
+            }
+            [&ref branch_name, _, &ref maybe_origin_branch, ..] if branch_name != "*" => {
+                ParseBranchResult::new(branch_name, maybe_origin_branch, false)
+            }
+            _ => return Result::Err(GitError::new_with_string(format!("String format not recognized {}", line)))
+        };
+
+        Result::Ok(branch)
     }
 
     fn new(name: String, remote_branch: Option<RemoteBranch>) -> Self {
