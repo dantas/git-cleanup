@@ -1,5 +1,5 @@
 use crate::git::RemoteBranch;
-
+use super::error;
 use super::GitError;
 use regex::Regex;
 
@@ -55,7 +55,7 @@ impl Branch {
             [&ref branch_name, _, &ref maybe_origin_branch, ..] if branch_name != "*" => {
                 ParseBranchResult::new(branch_name, maybe_origin_branch, false)
             }
-            _ => return Result::Err(GitError::new_with_string(format!("String format not recognized {}", line)))
+            _ => return Result::Err(error::new_git_error_with_string!("String format not recognized {}", line))
         };
 
         Result::Ok(branch)

@@ -2,6 +2,8 @@ use crate::git::GitError;
 use std::process::Command;
 use std::process::ExitStatus;
 
+use super::error;
+
 pub fn git_command<P, A, S>(dir: P, args: A) -> Result<String, GitError>
     where P : AsRef<std::path::Path>,
           A : AsRef<[S]> + IntoIterator<Item=S>,
@@ -26,7 +28,7 @@ fn check_for_error(status: ExitStatus) -> Result<(), GitError> {
 
     let error = match status.code() {
         Some(code) => {
-            GitError::new_with_string(format!("Error executing command: {}", code))
+            error::new_git_error_with_string!("Error executing command: {}", code)
         }
         _ => {
             GitError::new_with_str("Error executing command")
