@@ -1,6 +1,7 @@
 use crate::git::RemoteBranch;
 
 use super::GitError;
+use regex::Regex;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Branch {
@@ -24,9 +25,9 @@ pub struct ParseBranchResult {
 
 impl Branch {
     pub fn from_vv_line(line: &str) -> Result<ParseBranchResult, GitError> {
-        let words: Vec<&str> = line.split_whitespace().collect();
+        let components = split_components(line)?;
 
-        let branch = match words.as_slice() {
+        let branch = match components.as_slice() {
             ["*", "(HEAD", ..] => { 
                 ParseBranchResult {
                     branch: Self::Detached,
@@ -66,6 +67,25 @@ impl Branch {
     }
 }
 
+fn split_components(line: &str) -> Result<Vec<&str>, GitError> {
+    let regex = Regex::new(r"(\[.*\])+|(\S)+")?;
+
+    let captures_iter = regex
+        .captures_iter(line)
+        .filter_map(|c| c.get(0))
+        .map(|m| m.as_str());
+
+    let vec= Vec::from_iter(captures_iter);
+
+    Result::Ok(vec)
+}
+
+impl From<regex::Error> for GitError {
+    fn from(source: regex::Error) -> Self {
+        GitError::new_with_source(Box::new(source))
+    }
+}
+
 #[test]
 fn test_parse_detached_head() {
     let sut = Branch::from_vv_line("* (HEAD detached at 1f02cc2) 1f02cc2 Initial commit").unwrap();
@@ -84,7 +104,7 @@ fn test_parse_detached_head() {
 
 #[test]
 fn test_parse_currently_checked_out_tracked_branch() {
-    let sut = Branch::from_vv_line("*  main  1f02cc2 [origin/main] Initial commit").unwrap();
+    let sut = Branch::from_vv_line("*  main  1f02cc2 [origin/main: ahead by 2] Initial commit").unwrap();
 
     let expected =
         ParseBranchResult {
