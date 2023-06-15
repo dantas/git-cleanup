@@ -125,7 +125,7 @@ fn test_parse_currently_checked_out_tracked_branch() {
 }
 
 #[test]
-fn test_parse_tracked_branch() {
+fn test_parse_local_branch() {
     let sut = Branch::from_vv_line("develop    1f02cc2 Initial commit").unwrap();
 
     let expected =
