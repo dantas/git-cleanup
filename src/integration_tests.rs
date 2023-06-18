@@ -84,7 +84,7 @@ impl TempDir {
         )
     }
 
-    pub fn join<P: AsRef<std::path::Path>>(&self, path: P) -> TempDir {
+    fn join<P: AsRef<std::path::Path>>(&self, path: P) -> TempDir {
         TempDir {
             path: self.path.join(path.as_ref())
         }
