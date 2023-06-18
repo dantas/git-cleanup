@@ -92,6 +92,27 @@ impl From<regex::Error> for GitError {
     }
 }
 
+macro_rules! tracked_branch {
+    ($name:literal, remote_branch ( $remote_name:literal, $remote_origin: literal ) ) => {
+        $crate::git::Branch::Tracked {
+            name: $name.to_owned(),
+            remote: crate::git::remote_branch::remote_branch!($remote_name, $remote_origin),
+        }
+    };
+}
+
+pub(crate) use tracked_branch;
+
+macro_rules! local_branch {
+    ($name:literal) => {
+        $crate::git::Branch::Local {
+            name: $name.to_owned(),
+        }
+    };
+}
+
+pub(crate) use local_branch;
+
 #[test]
 fn test_parse_detached_head() {
     let sut = Branch::from_vv_line("* (HEAD detached at 1f02cc2) 1f02cc2 Initial commit").unwrap();
@@ -114,13 +135,7 @@ fn test_parse_currently_checked_out_tracked_branch() {
 
     let expected =
         ParseBranchResult {
-            branch: Branch::Tracked {
-                name: "main".to_owned(),
-                remote: RemoteBranch {
-                    name: "main".to_owned(),
-                    remote: "origin".to_owned(),
-                }
-            },
+            branch: tracked_branch!{"main", remote_branch("main", "origin")},
             is_current: true
         };
 
@@ -136,9 +151,7 @@ fn test_parse_local_branch() {
 
     let expected =
         ParseBranchResult {
-            branch: Branch::Local {
-                name: "develop".to_owned(),
-            },
+            branch: local_branch!("develop"),
             is_current: false,
         };
 

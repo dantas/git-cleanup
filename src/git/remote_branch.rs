@@ -43,24 +43,24 @@ impl std::fmt::Display for RemoteBranch {
 
 #[test]
 fn test_remote_branch() {
-    if let Some(remote_branch) = RemoteBranch::try_from_vv_column("[origin/branch2]") {
-        assert_eq!(remote_branch.name, "branch2");
-        assert_eq!(remote_branch.remote, "origin");
-        return;
-    }
+    let expected = remote_branch!("branch2", "origin");
 
-    panic!("try_from_vv_column didn't detect valid string");
+    if let Some(sut) = RemoteBranch::try_from_vv_column("[origin/branch2]") {
+        assert_eq!(sut, expected)
+    } else {
+        panic!("try_from_vv_column didn't detect valid string");
+    }
 }
 
 #[test]
 fn test_remote_branch_ahead_of_origin() {
-    if let Some(remote_branch) = RemoteBranch::try_from_vv_column("[origin/main: ahead 1]") {
-        assert_eq!(remote_branch.name, "main");
-        assert_eq!(remote_branch.remote, "origin");
-        return;
-    }
+    let expected = remote_branch!("main", "origin");
 
-    panic!("try_from_vv_column didn't detect valid string");
+    if let Some(sut) = RemoteBranch::try_from_vv_column("[origin/main: ahead 1]") {
+        assert_eq!(sut, expected)
+    } else {
+        panic!("try_from_vv_column didn't detect valid string");
+    }
 }
 
 #[test]
@@ -77,3 +77,14 @@ fn test_parse_invalid_lines() {
         panic!("try_from_vv_column interpreted missing / as a valid remote branch");
     }
 }
+
+macro_rules! remote_branch {
+    ($branch_name:literal, $remote_name:literal) => {
+        RemoteBranch {
+            name: $branch_name.to_owned(),
+            remote: $remote_name.to_owned()
+        }
+    };
+}
+
+pub(crate) use remote_branch;
