@@ -7,7 +7,7 @@ use crate::git::RemoteBranch;
 use crate::git::Repository;
 
 #[test]
-fn test_something() -> Result<(), git::GitError> {
+fn test_standard_repository() -> Result<(), git::GitError> {
     let root = TempDir::new()?;
     let remote = root.join("remote");
     let local = root.join("local");
