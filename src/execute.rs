@@ -1,5 +1,5 @@
 use crate::git::GitError;
-use crate::git::error;
+use crate::git;
 use std::process::Command;
 use std::process::ExitStatus;
 
@@ -27,7 +27,7 @@ fn check_for_success(status: ExitStatus) -> Result<(), GitError> {
 
     let error = match status.code() {
         Some(code) => {
-            error::new_git_error_with_string!("Error executing command: {}", code)
+            git::new_git_error_with_string!("Error executing command: {}", code)
         }
         _ => {
             GitError::new_with_str("Error executing command")
@@ -35,7 +35,33 @@ fn check_for_success(status: ExitStatus) -> Result<(), GitError> {
     };
 
     Result::Err(error)
+}           
+
+macro_rules! sequence_execute {
+    ( $path:ident : ($command:literal, $($arg:expr),*) ) => {
+        $crate::execute::execute(&$path, &$command, [$(&$arg),*]);
+    };
+
+    ( $path:ident : $($command_and_args:tt),+ ) => {
+        $(
+            $crate::execute::sequence_execute! {
+                $path:
+                    $command_and_args
+            }
+        )+
+    };
+
+    ( $($path:ident : $($command_and_args:tt),+)+ ) => {
+        $(
+            $crate::execute::sequence_execute! {
+                $path:
+                    $($command_and_args),+
+            }
+        )+
+    };
 }
+
+pub(super) use sequence_execute;
 
 impl From<std::io::Error> for GitError {
     fn from(error: std::io::Error) -> Self {

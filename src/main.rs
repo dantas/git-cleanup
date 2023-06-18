@@ -1,6 +1,7 @@
 mod args;
 mod git;
 mod commands;
+mod execute;
 
 use std::env;
 use git::GitError;
