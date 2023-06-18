@@ -1,14 +1,13 @@
 use crate::git::GitError;
+use crate::git::error;
 use std::process::Command;
 use std::process::ExitStatus;
 
-use super::error;
-
-pub fn git_command<P, A, S>(dir: P, args: A) -> Result<String, GitError>
+pub fn execute<P, A, S>(dir: P, command: S, args: A) -> Result<String, GitError>
     where P : AsRef<std::path::Path>,
           A : AsRef<[S]> + IntoIterator<Item=S>,
           S : AsRef<std::ffi::OsStr> {
-    let mut command = Command::new("git");
+    let mut command = Command::new(command);
 
     command.current_dir(dir).args(args);
 
