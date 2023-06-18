@@ -28,7 +28,7 @@ macro_rules! new_git_error_with_string {
     }
 }
 
-pub(super) use new_git_error_with_string;
+pub(crate) use new_git_error_with_string;
 
 impl std::fmt::Display for GitError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

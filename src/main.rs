@@ -1,13 +1,14 @@
+use std::env;
+use git::GitError;
+use args::VecArgs;
+
 mod args;
 mod git;
 mod commands;
 mod execute;
 
-use std::env;
-use git::GitError;
-use args::VecArgs;
-
-// TODO: Setup integration tests to cover other possible repository layouts
+#[cfg(test)]
+mod integration_tests;
 
 fn main() -> Result<(), GitError> {
     let repository = git::repository(env::current_dir()?)?;

@@ -1,6 +1,6 @@
 use crate::git::Branch;
 use crate::git::GitError;
-use crate::git::execute;
+use crate::execute;
 
 #[allow(unused_imports)]
 use crate::git::RemoteBranch;
