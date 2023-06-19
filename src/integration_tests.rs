@@ -80,6 +80,6 @@ impl AsRef<std::path::Path> for TempDir {
 
 impl Drop for TempDir {
     fn drop(&mut self) {
-        fs::remove_dir(self);
+        let _ = fs::remove_dir(self);
     }
 }
