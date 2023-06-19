@@ -92,27 +92,6 @@ impl From<regex::Error> for GitError {
     }
 }
 
-macro_rules! tracked_branch {
-    ($name:literal, remote_branch ( $remote_name:literal, $remote_origin: literal ) ) => {
-        $crate::git::Branch::Tracked {
-            name: $name.to_owned(),
-            remote: crate::git::remote_branch::remote_branch!($remote_name, $remote_origin),
-        }
-    };
-}
-
-pub(crate) use tracked_branch;
-
-macro_rules! local_branch {
-    ($name:literal) => {
-        $crate::git::Branch::Local {
-            name: $name.to_owned(),
-        }
-    };
-}
-
-pub(crate) use local_branch;
-
 #[test]
 fn test_parse_detached_head() {
     let sut = Branch::from_vv_line("* (HEAD detached at 1f02cc2) 1f02cc2 Initial commit").unwrap();
@@ -173,3 +152,46 @@ fn test_parse_invalid_lines() {
     
     assert!(Branch::from_vv_line("* first second").is_err());
 }
+
+#[cfg(test)]
+macro_rules! tracked_branch {
+    ($name:literal, remote_branch ( $remote_name:literal, $remote_origin: literal ) ) => {
+        $crate::git::Branch::Tracked {
+            name: $name.to_owned(),
+            remote: crate::git::remote_branch::remote_branch!($remote_name, $remote_origin),
+        }
+    };
+}
+
+#[cfg(test)]
+pub(crate) use tracked_branch;
+
+#[cfg(test)]
+macro_rules! local_branch {
+    ($name:literal) => {
+        $crate::git::Branch::Local {
+            name: $name.to_owned(),
+        }
+    };
+}
+
+#[cfg(test)]
+pub(crate) use local_branch;
+
+#[cfg(test)]
+macro_rules! branch {
+    ( detached ) => {
+        $crate::git::Branch::Detached
+    };
+
+    ( local_branch $args:tt ) => {
+        $crate::git::branch::local_branch!$args
+    };
+
+    ( tracked_branch $args:tt ) => {
+        $crate::git::branch::tracked_branch!$args
+    };
+}
+
+#[cfg(test)]
+pub(crate) use branch;
