@@ -18,7 +18,7 @@ pub enum Branch {
 }
 
 #[derive(Debug, PartialEq)]
-pub struct ParseBranchResult {
+pub(super) struct ParseBranchResult {
     pub branch: Branch,
     pub is_current: bool
 }
@@ -42,7 +42,7 @@ impl ParseBranchResult {
 }
 
 impl Branch {
-    pub fn from_vv_line(line: &str) -> Result<ParseBranchResult, GitError> {
+    pub(super) fn from_vv_line(line: &str) -> Result<ParseBranchResult, GitError> {
         let components = split_components(line)?;
 
         let branch = match components.as_slice() {

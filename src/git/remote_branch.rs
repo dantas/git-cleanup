@@ -5,7 +5,7 @@ pub struct RemoteBranch {
 }
 
 impl RemoteBranch {
-    pub fn try_from_vv_column(string: &str) -> Option<RemoteBranch> {
+    pub(super) fn try_from_vv_column(string: &str) -> Option<RemoteBranch> {
         let index_slash;
 
         if let Some(i) = string.find('/') {

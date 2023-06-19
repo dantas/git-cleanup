@@ -1,6 +1,5 @@
 use crate::git::Branch;
 use crate::git::GitError;
-use crate::execute;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Repository {
@@ -8,13 +7,8 @@ pub struct Repository {
     pub branches: Vec<Branch>
 }
 
-pub fn query_repository<P : AsRef<std::path::Path>> (dir: P) -> Result<Repository, GitError> {
-    let branch_vv_stdout: String = execute::execute(dir, "git",["branch", "-vv"])?;
-    Repository::from_vv_stdout(branch_vv_stdout)
-}
-
 impl Repository {
-    fn from_vv_stdout<S : AsRef<str>>(command_stdout: S) -> Result<Repository, GitError> {
+    pub(super) fn from_vv_stdout<S : AsRef<str>>(command_stdout: S) -> Result<Repository, GitError> {
         let mut branches = Vec::new();
         let mut current_branch = None;
     
