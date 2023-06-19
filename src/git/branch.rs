@@ -158,7 +158,7 @@ macro_rules! tracked_branch {
     ($name:literal, remote_branch ( $remote_name:literal, $remote_origin: literal ) ) => {
         $crate::git::Branch::Tracked {
             name: $name.to_owned(),
-            remote: crate::git::remote_branch::remote_branch!($remote_name, $remote_origin),
+            remote: crate::git::remote_branch!($remote_name, $remote_origin),
         }
     };
 }
@@ -179,19 +179,19 @@ macro_rules! local_branch {
 pub(crate) use local_branch;
 
 #[cfg(test)]
-macro_rules! branch {
+macro_rules! make_branch {
     ( detached ) => {
         $crate::git::Branch::Detached
     };
 
     ( local_branch $args:tt ) => {
-        $crate::git::branch::local_branch!$args
+        $crate::git::local_branch!$args
     };
 
     ( tracked_branch $args:tt ) => {
-        $crate::git::branch::tracked_branch!$args
+        $crate::git::tracked_branch!$args
     };
 }
 
 #[cfg(test)]
-pub(crate) use branch;
+pub(crate) use make_branch;

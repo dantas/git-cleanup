@@ -2,8 +2,6 @@
 
 use crate::git;
 use crate::execute;
-use crate::git::Branch;
-use crate::git::RemoteBranch;
 use crate::git::Repository;
 
 #[test]
@@ -36,28 +34,11 @@ fn test_standard_repository() -> Result<(), git::GitError> {
     };
 
 
-    let sut = git::repository(&local).expect("Error extracting repository information");
+    let sut = git::query_repository(&local)?;
 
-    let current_branch = Branch::Tracked {
-        name: "develop".to_owned(),
-        remote: RemoteBranch {
-            name: "develop".to_owned(),
-            remote: "origin".to_owned(),
-        }
-    };
-
-    let expected = Repository {
-        current_branch: current_branch.clone(),
-        branches: vec![
-            current_branch,
-            Branch::Tracked {
-                name: "main".to_owned(),
-                remote: RemoteBranch {
-                    name: "main".to_owned(),
-                    remote: "origin".to_owned(),
-                }
-            }
-        ]
+    let expected = git::repository! {
+        *tracked_branch { "develop", remote_branch("develop", "origin") },
+        tracked_branch { "main", remote_branch("main", "origin") }
     };
 
     assert_eq!(sut, expected);

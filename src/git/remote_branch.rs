@@ -81,7 +81,7 @@ fn test_parse_invalid_lines() {
 #[cfg(test)]
 macro_rules! remote_branch {
     ($branch_name:literal, $remote_name:literal) => {
-        $crate::git::remote_branch::RemoteBranch {
+        $crate::git::RemoteBranch {
             name: $branch_name.to_owned(),
             remote: $remote_name.to_owned()
         }

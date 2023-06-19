@@ -8,4 +8,4 @@ mod remote_branch;
 pub use remote_branch::*;
 
 mod branch;
-pub use branch::Branch;
+pub use branch::*;

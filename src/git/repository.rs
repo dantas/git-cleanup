@@ -2,9 +2,6 @@ use crate::git::Branch;
 use crate::git::GitError;
 use crate::execute;
 
-#[allow(unused_imports)]
-use crate::git::RemoteBranch;
-
 #[derive(Debug, Clone, PartialEq)]
 pub struct Repository {
     pub current_branch: Branch,
@@ -53,17 +50,8 @@ impl Repository {
 fn test_one_branch() {
     let sut = Repository::from_vv_stdout("* main 73b4084 [origin/main] commit message").unwrap();
 
-    let current_branch = Branch::Tracked {
-        name: "main".to_owned(),
-        remote: RemoteBranch {
-            name: "main".to_owned(),
-            remote: "origin".to_owned(),
-        }
-    };
-
-    let expected = Repository {
-        branches: vec![current_branch.clone()],
-        current_branch,
+    let expected = repository! {
+        *tracked_branch { "main", remote_branch("main", "origin") }
     };
 
     assert_eq!(sut, expected);
@@ -76,26 +64,10 @@ fn test_multiple_branches() {
         develop 73b4084 [origin/develop] commit message\
     ").unwrap();
 
-    let current_branch = Branch::Tracked {
-        name: "main".to_owned(),
-        remote: RemoteBranch {
-            name: "main".to_owned(),
-            remote: "origin".to_owned(),
-        },
+    let expected = repository! {
+        *tracked_branch { "main" , remote_branch("main", "origin") },
+        tracked_branch { "develop" , remote_branch("develop", "origin") },
     };
-
-    let branches = vec![
-        current_branch.clone(),
-        Branch::Tracked {
-            name: "develop".to_owned(),
-            remote: RemoteBranch {
-                name: "develop".to_owned(),
-                remote: "origin".to_owned(),
-            },
-        },
-    ];
-
-    let expected = Repository { branches, current_branch };
 
     assert_eq!(sut, expected);
 }
@@ -107,22 +79,10 @@ fn test_local_branch() {
         local 73b4084 commit message\
     ").unwrap();
 
-    let current_branch = Branch::Tracked {
-        name: "main".to_owned(),
-        remote: RemoteBranch {
-            name: "main".to_owned(),
-            remote: "origin".to_owned(),
-        },
+    let expected = repository! {
+        *tracked_branch { "main", remote_branch("main", "origin") },
+        local_branch("local"),
     };
-
-    let branches: Vec<Branch> = vec![
-        current_branch.clone(),
-        Branch::Local {
-            name: "local".to_owned(),
-        },
-    ];
-
-    let expected = Repository { branches, current_branch };
 
     assert_eq!(sut, expected);
 }
@@ -134,16 +94,52 @@ fn test_dettached_branch() {
         local 73b4084 commit message\
     ").unwrap();
 
-    let current_branch = Branch::Detached;
-
-    let branches = vec![
-        current_branch.clone(),
-        Branch::Local {
-            name: "local".to_owned(),
-        },
-    ];
-
-    let expected = Repository { branches, current_branch };
+    let expected = repository! {
+        *detached,
+        local_branch("local"),
+    };
 
     assert_eq!(sut, expected);
 }
+
+#[cfg(test)]
+macro_rules! repository {
+    ( * $type:ident $args:tt $( , $rest_type:ident $rest_args:tt ),* $(,)? ) => { 
+        {
+            let current_branch = $crate::git::make_branch!($type $args);
+
+            let branches = vec![
+                current_branch.clone(),
+                $(
+                    $crate::git::make_branch!{ $rest_type $rest_args }
+                ),*
+            ];
+
+            Repository {
+                current_branch,
+                branches,
+            }
+        }
+    };
+
+    ( * $type:ident $( , $rest_type:ident $rest_args:tt )* $(,)? ) => { 
+        {
+            let current_branch = $crate::git::make_branch!($type);
+
+            let branches = vec![
+                current_branch.clone(),
+                $(
+                    $crate::git::make_branch!{ $rest_type $rest_args }
+                ),*
+            ];
+
+            Repository {
+                current_branch,
+                branches,
+            }
+        }
+    };
+}
+
+#[cfg(test)]
+pub(crate) use repository;
