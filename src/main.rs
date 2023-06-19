@@ -11,7 +11,7 @@ mod execute;
 mod integration_tests;
 
 fn main() -> Result<(), GitError> {
-    let repository = git::repository(env::current_dir()?)?;
+    let repository = git::query_repository(env::current_dir()?)?;
 
     match VecArgs::new().as_vec_str().as_slice() {
         ["list"] => commands::list(&repository),
