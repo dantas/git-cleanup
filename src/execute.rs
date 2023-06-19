@@ -37,9 +37,22 @@ fn check_for_success(status: ExitStatus) -> Result<(), GitError> {
     Result::Err(error)
 }           
 
+impl From<std::io::Error> for GitError {
+    fn from(error: std::io::Error) -> Self {
+        GitError::new_with_source(Box::new(error))
+    }
+}
+
+impl From<std::string::FromUtf8Error> for GitError {
+    fn from(error: std::string::FromUtf8Error) -> Self {
+        GitError::new_with_source(Box::new(error))
+    }
+}
+
+#[cfg(test)]
 macro_rules! sequence_execute {
     ( $path:ident : ($command:literal, $($arg:expr),*) ) => {
-        $crate::execute::execute(&$path, &$command, [$(&$arg),*]);
+        let _ = $crate::execute::execute(&$path, &$command, [$(&$arg),*]);
     };
 
     ( $path:ident : $($command_and_args:tt),+ ) => {
@@ -61,16 +74,5 @@ macro_rules! sequence_execute {
     };
 }
 
+#[cfg(test)]
 pub(super) use sequence_execute;
-
-impl From<std::io::Error> for GitError {
-    fn from(error: std::io::Error) -> Self {
-        GitError::new_with_source(Box::new(error))
-    }
-}
-
-impl From<std::string::FromUtf8Error> for GitError {
-    fn from(error: std::string::FromUtf8Error) -> Self {
-        GitError::new_with_source(Box::new(error))
-    }
-}
