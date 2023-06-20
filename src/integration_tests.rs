@@ -3,9 +3,10 @@
 use crate::git;
 use crate::execute;
 use crate::git::Repository;
+use crate::error::Error;
 
 #[test]
-fn test_standard_repository() -> Result<(), git::GitError> {
+fn test_standard_repository() -> Result<(), Error> {
     let root = TempDir::new()?;
     let remote = root.join("remote");
     let local = root.join("local");
@@ -56,7 +57,7 @@ struct TempDir {
 }
 
 impl TempDir {
-    fn new() -> Result<Self, git::GitError> {
+    fn new() -> Result<Self, Error> {
         let random_dir_name = rand::random::<u32>().to_string();
         let path = env::temp_dir().join(random_dir_name);
         fs::create_dir(path.clone())?;

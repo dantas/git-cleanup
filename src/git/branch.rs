@@ -1,7 +1,7 @@
-use crate::git::RemoteBranch;
-use super::error;
-use super::GitError;
 use regex::Regex;
+use crate::git::RemoteBranch;
+use crate::error::Error;
+use crate::error;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Branch {
@@ -42,7 +42,7 @@ impl ParseBranchResult {
 }
 
 impl Branch {
-    pub(super) fn from_vv_line(line: &str) -> Result<ParseBranchResult, GitError> {
+    pub(super) fn from_vv_line(line: &str) -> Result<ParseBranchResult, Error> {
         let components = split_components(line)?;
 
         let branch = match components.as_slice() {
@@ -55,7 +55,7 @@ impl Branch {
             [&ref branch_name, _, &ref maybe_origin_branch, ..] if branch_name != "*" => {
                 ParseBranchResult::new(branch_name, maybe_origin_branch, false)
             }
-            _ => return Result::Err(error::new_git_error_with_string!("String format not recognized {}", line))
+            _ => return Result::Err(error::new_error_with_string!("String format not recognized {}", line))
         };
 
         Result::Ok(branch)
@@ -73,7 +73,7 @@ impl Branch {
     }
 }
 
-fn split_components(line: &str) -> Result<Vec<&str>, GitError> {
+fn split_components(line: &str) -> Result<Vec<&str>, Error> {
     let regex = Regex::new(r"(\[.*\])+|(\S)+")?;
 
     let captures_iter = regex
@@ -86,9 +86,9 @@ fn split_components(line: &str) -> Result<Vec<&str>, GitError> {
     Result::Ok(vec)
 }
 
-impl From<regex::Error> for GitError {
+impl From<regex::Error> for Error {
     fn from(source: regex::Error) -> Self {
-        GitError::new_with_source(Box::new(source))
+        Error::new_with_source(Box::new(source))
     }
 }
 

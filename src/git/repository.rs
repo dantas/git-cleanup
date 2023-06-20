@@ -1,5 +1,5 @@
 use crate::git::Branch;
-use crate::git::GitError;
+use crate::error::Error;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Repository {
@@ -8,7 +8,7 @@ pub struct Repository {
 }
 
 impl Repository {
-    pub(super) fn from_vv_stdout<S : AsRef<str>>(command_stdout: S) -> Result<Repository, GitError> {
+    pub(super) fn from_vv_stdout<S : AsRef<str>>(command_stdout: S) -> Result<Repository, Error> {
         let mut branches = Vec::new();
         let mut current_branch = None;
     
@@ -33,7 +33,7 @@ impl Repository {
             }
             None => {
                 Result::Err(
-                    GitError::new_with_str("Current branch not found")
+                    Error::new_with_str("Current branch not found")
                 )
             }
         }    

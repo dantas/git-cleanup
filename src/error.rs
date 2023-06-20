@@ -1,42 +1,42 @@
 use std::borrow::Cow;
 
 #[derive(Debug)]
-pub enum GitError {
+pub enum Error {
     Source(Box<dyn std::error::Error>),
     Message(Cow<'static, str>),
 }
 
 // Most of this code can be automated by the crate thiserror
 
-impl GitError {
+impl Error {
     pub fn new_with_str(message: &'static str) -> Self {
-        GitError::Message(Cow::Borrowed(message))
+        Error::Message(Cow::Borrowed(message))
     }
 
     pub fn new_with_string(message: String) -> Self {
-        GitError::Message(Cow::Owned(message))
+        Error::Message(Cow::Owned(message))
     }
 
     pub fn new_with_source(source: Box<dyn std::error::Error>) -> Self {
-        GitError::Source(source)
+        Error::Source(source)
     }
 }
 
-macro_rules! new_git_error_with_string {
+macro_rules! new_error_with_string {
     ($($arg:tt)*) => {
-        GitError::new_with_string(format!($($arg)*))
+        Error::new_with_string(format!($($arg)*))
     }
 }
 
-pub(crate) use new_git_error_with_string;
+pub(crate) use new_error_with_string;
 
-impl std::fmt::Display for GitError {
+impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            GitError::Message(message) => {
+            Error::Message(message) => {
                 write!(f, "RepositoryError, message: {}", message)?;
             }
-            GitError::Source(_) => {
+            Error::Source(_) => {
                 write!(f, "RepositoryError, caused by source error")?;
             }
         };
@@ -45,13 +45,13 @@ impl std::fmt::Display for GitError {
     }
 }
 
-impl std::error::Error for GitError {
+impl std::error::Error for Error {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
-            GitError::Message(_) => {
+            Error::Message(_) => {
                 None
             }
-            GitError::Source(box_source) => {
+            Error::Source(box_source) => {
                 Some(box_source.as_ref())
             }
         }

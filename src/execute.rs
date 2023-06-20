@@ -1,9 +1,9 @@
-use crate::git::GitError;
-use crate::git;
+use crate::error::Error;
+use crate::error;
 use std::process::Command;
 use std::process::ExitStatus;
 
-pub fn execute<P, A, S>(dir: P, command: S, args: A) -> Result<String, GitError>
+pub fn execute<P, A, S>(dir: P, command: S, args: A) -> Result<String, Error>
     where P : AsRef<std::path::Path>,
           A : AsRef<[S]> + IntoIterator<Item=S>,
           S : AsRef<std::ffi::OsStr> {
@@ -20,32 +20,32 @@ pub fn execute<P, A, S>(dir: P, command: S, args: A) -> Result<String, GitError>
     Result::Ok(stdout_as_string)
 }
 
-fn check_for_success(status: ExitStatus) -> Result<(), GitError> {
+fn check_for_success(status: ExitStatus) -> Result<(), Error> {
     if status.success() {
         return Result::Ok(())
     }
 
     let error = match status.code() {
         Some(code) => {
-            git::new_git_error_with_string!("Error executing command: {}", code)
+            error::new_error_with_string!("Error executing command: {}", code)
         }
         _ => {
-            GitError::new_with_str("Error executing command")
+            Error::new_with_str("Error executing command")
         }
     };
 
     Result::Err(error)
 }           
 
-impl From<std::io::Error> for GitError {
+impl From<std::io::Error> for Error {
     fn from(error: std::io::Error) -> Self {
-        GitError::new_with_source(Box::new(error))
+        Error::new_with_source(Box::new(error))
     }
 }
 
-impl From<std::string::FromUtf8Error> for GitError {
+impl From<std::string::FromUtf8Error> for Error {
     fn from(error: std::string::FromUtf8Error) -> Self {
-        GitError::new_with_source(Box::new(error))
+        Error::new_with_source(Box::new(error))
     }
 }
 
@@ -75,4 +75,4 @@ macro_rules! sequence_execute {
 }
 
 #[cfg(test)]
-pub(super) use sequence_execute;
+pub(crate) use sequence_execute;
