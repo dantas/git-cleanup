@@ -12,9 +12,22 @@ pub fn list(repository: &Repository, args: &[&str]) -> bool {
         None => return false,
     };
 
-    for branch in &repository.branches {
-        let is_current_branch = branch == &repository.current_branch;
-        print_branch(branch, mode, is_current_branch);
+    let iter = repository.branches
+        .iter()
+        .filter(|branch| {
+            mode == Mode::All || match branch {
+                &Branch::Tracked { .. } => mode == Mode::Tracked,
+                &Branch::Local { .. } => mode == Mode::Local,
+                &Branch::Detached => false,
+            }
+        });
+
+    for branch in iter {
+        if branch == &repository.current_branch {
+            print!("* ")
+        }
+
+        println!("{}", branch);
     }
 
     true
@@ -45,24 +58,6 @@ enum Mode {
     Local,
     Tracked,
     All
-}
-
-fn print_branch(branch: &Branch, mode: Mode, is_current: bool) {
-    let print =
-        mode == Mode::All
-        || match branch {
-            &Branch::Tracked { .. } => mode == Mode::Tracked,
-            &Branch::Local { .. } => mode == Mode::Local,
-            &Branch::Detached => false,
-        };
-
-    if print {
-        if is_current {
-            print!("* ")
-        }
-
-        println!("{}", branch);
-    }
 }
 
 impl Display for Branch {
