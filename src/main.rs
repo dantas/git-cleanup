@@ -1,11 +1,11 @@
-use std::env;
 use args::VecArgs;
+use std::env;
 
 mod args;
-mod git;
 mod commands;
-mod execute;
 mod error;
+mod execute;
+mod git;
 
 #[cfg(test)]
 mod integration_tests;
@@ -13,16 +13,19 @@ mod integration_tests;
 use error::Error;
 
 fn main() -> Result<(), Error> {
-    let repository = git::query_repository(env::current_dir()?)?;
+    let path = env::current_dir()?;
+    let repository = git::query_repository(&path)?;
 
-    match VecArgs::new().as_vec_str().as_slice() {
-        ["list"] => commands::list(&repository),
-        ["clean", args @ ..] => commands::clean(repository, args),
+    let success = match VecArgs::new().as_vec_str().as_slice() {
+        ["list", args @ ..] => commands::list(&repository, args),
+        ["clean", args @ ..] => commands::clean(&path, repository, args),
         _ => {
-            return Err(
-                Error::new_with_str("Unrecognized command pattern")
-            );
+            return Err(Error::new_with_str("Unrecognized command pattern"));
         }
+    };
+
+    if !success {
+        commands::print_list_help();
     }
 
     Result::Ok(())
