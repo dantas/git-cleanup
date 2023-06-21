@@ -16,17 +16,26 @@ fn main() -> Result<(), Error> {
     let path = env::current_dir()?;
     let repository = git::query_repository(&path)?;
 
-    let success = match VecArgs::new().as_vec_str().as_slice() {
+    match VecArgs::new().as_vec_str().as_slice() {
         ["list", args @ ..] => commands::list(&repository, args),
         ["clean", args @ ..] => commands::clean(&path, repository, args),
+        ["--help"] => {
+            print_help();
+            true
+        }
         _ => {
-            return Err(Error::new_with_str("Unrecognized command pattern"));
+            println!("Unrecognized command");
+            print_help();
+            true
         }
     };
 
-    if !success {
-        commands::print_list_help();
-    }
-
     Result::Ok(())
+}
+
+fn print_help() {
+    println!("Commands available:");
+    println!("    list: List branches");
+    println!("    clean: Clean local branches that are not on origin");
+    println!("Execute each comand with --help for available option");
 }
