@@ -3,13 +3,13 @@ use crate::error;
 use std::process::Command;
 use std::process::ExitStatus;
 
-pub fn execute<P, A, S>(dir: P, command: S, args: A) -> Result<String, Error>
+pub fn execute<P, A, S>(path: P, command: S, args: A) -> Result<String, Error>
     where P : AsRef<std::path::Path>,
           A : AsRef<[S]> + IntoIterator<Item=S>,
           S : AsRef<std::ffi::OsStr> {
     let mut command = Command::new(command);
 
-    command.current_dir(dir).args(args);
+    command.current_dir(path).args(args);
 
     let output = command.output()?;
 
