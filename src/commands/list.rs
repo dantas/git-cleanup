@@ -14,13 +14,7 @@ pub fn list(repository: &Repository, args: &[&str]) -> bool {
 
     let iter = repository.branches
         .iter()
-        .filter(|branch| {
-            mode == Mode::All || match branch {
-                &Branch::Tracked { .. } => mode == Mode::Tracked,
-                &Branch::Local { .. } => mode == Mode::Local,
-                &Branch::Detached => false,
-            }
-        });
+        .filter(|branch| { should_print(branch, mode) });
 
     for branch in iter {
         if branch == &repository.current_branch {
@@ -50,6 +44,14 @@ fn parse_mode(args: &[&str]) -> Option<Mode> {
         ["--local"] => Some(Mode::Local),
         [] => Some(Mode::Local), // default option if no arg is provided
         _ => None
+    }
+}
+
+fn should_print(branch: &Branch, mode: Mode) -> bool {
+    mode == Mode::All || match branch {
+        &Branch::Tracked { .. } => mode == Mode::Tracked,
+        &Branch::Local { .. } => mode == Mode::Local,
+        &Branch::Detached => false,
     }
 }
 
