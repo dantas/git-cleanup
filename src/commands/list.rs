@@ -1,15 +1,18 @@
 use std::fmt::Display;
 use crate::git::{Branch, Repository};
 
-pub fn list(repository: &Repository, args: &[&str]) -> bool {
+pub fn list(repository: &Repository, args: &[&str]) {
     if args == ["--help"] {
         print_list_help();
-        return true;
+        return;
     }
 
     let mode = match parse_mode(args) {
         Some(mode) => mode,
-        None => return false,
+        None => {
+            print_list_help();
+            return;
+        }
     };
 
     let iter = repository.branches
@@ -23,18 +26,13 @@ pub fn list(repository: &Repository, args: &[&str]) -> bool {
 
         println!("{}", branch);
     }
-
-    true
 }
 
 pub fn print_list_help() {
-    println!(
-        "List branches:
-            --all:      List all branches
-            --tracked:  List all tracked branches
-            --local:    List local branches (default option)
-        "
-    )
+    println!("list options:");
+    println!("    --all:      List all branches");
+    println!("    --tracked:  List all tracked branches");
+    println!("    --local:    List local branches (default option)");
 }
 
 fn parse_mode(args: &[&str]) -> Option<Mode> {
