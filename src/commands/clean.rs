@@ -3,17 +3,17 @@ use crate::git::Branch;
 use crate::git::Repository;
 use std::io;
 
-pub fn clean<P: AsRef<std::path::Path>>(path: P, repository: Repository, args: &[&str]) -> bool {
+pub fn clean<P: AsRef<std::path::Path>>(path: P, repository: Repository, args: &[&str]) {
     if args == ["--help"] {
         print_clean_help();
-        return true;
+        return;
     }
 
     let mode = match parse_mode(args) {
         Some(mode) => mode,
         None => {
             print_clean_help();
-            return true;
+            return;
         }
     };
 
@@ -31,13 +31,11 @@ pub fn clean<P: AsRef<std::path::Path>>(path: P, repository: Repository, args: &
             _ => continue,
         };
     }
-
-    true
 }
 
 pub fn print_clean_help() {
-    println!("clean options:
-        --step: Ask for user confirmation before deleting each branch");
+    println!("clean options:");
+    println!("    -step: Ask for user confirmation before deleting each branch");
 }
 
 fn skip_branch(branch: &Branch, branch_name: &String, repository: &Repository) -> bool {

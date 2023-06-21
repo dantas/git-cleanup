@@ -19,14 +19,10 @@ fn main() -> Result<(), Error> {
     match VecArgs::new().as_vec_str().as_slice() {
         ["list", args @ ..] => commands::list(&repository, args),
         ["clean", args @ ..] => commands::clean(&path, repository, args),
-        ["--help"] => {
-            print_help();
-            true
-        }
+        ["--help"] => print_help(),
         _ => {
             println!("Unrecognized command");
             print_help();
-            true
         }
     };
 
