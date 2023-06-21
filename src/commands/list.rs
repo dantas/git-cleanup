@@ -2,7 +2,12 @@ use std::fmt::Display;
 use crate::git::{Branch, Repository};
 
 pub fn list(repository: &Repository, args: &[&str]) -> bool {
-    let mode = match parse_args(args) {
+    if args == ["--help"] {
+        print_list_help();
+        return true;
+    }
+
+    let mode = match parse_mode(args) {
         Some(mode) => mode,
         None => return false,
     };
@@ -25,7 +30,7 @@ pub fn print_list_help() {
     )
 }
 
-fn parse_args(args: &[&str]) -> Option<Mode> {
+fn parse_mode(args: &[&str]) -> Option<Mode> {
     match args {
         ["--all"] => Some(Mode::All),
         ["--tracked"] => Some(Mode::Tracked),
