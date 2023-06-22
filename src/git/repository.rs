@@ -1,15 +1,17 @@
+use std::collections::HashSet;
+
 use crate::error::Error;
 use crate::git::Branch;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Repository {
     pub current_branch: Branch,
-    pub branches: Vec<Branch>,
+    pub branches: HashSet<Branch>,
 }
 
 impl Repository {
     pub(super) fn from_vv_stdout<S: AsRef<str>>(command_stdout: S) -> Result<Repository, Error> {
-        let mut branches = Vec::new();
+        let mut branches = HashSet::new();
         let mut current_branch = None;
 
         for line in command_stdout.as_ref().lines() {
@@ -19,7 +21,7 @@ impl Repository {
                 current_branch = Some(result.branch.clone())
             }
 
-            branches.push(result.branch);
+            branches.insert(result.branch);
         }
 
         match current_branch {
@@ -103,12 +105,15 @@ macro_rules! repository {
         {
             let current_branch = $crate::git::make_branch!($type $args);
 
-            let branches = vec![
-                current_branch.clone(),
-                $(
+            let mut branches = std::collections::HashSet::new();
+
+            branches.insert(current_branch.clone());
+
+            $(
+                branches.insert(
                     $crate::git::make_branch!{ $rest_type $rest_args }
-                ),*
-            ];
+                );
+            )*
 
             Repository {
                 current_branch,
@@ -121,12 +126,15 @@ macro_rules! repository {
         {
             let current_branch = $crate::git::make_branch!($type);
 
-            let branches = vec![
-                current_branch.clone(),
-                $(
+            let mut branches = std::collections::HashSet::new();
+
+            branches.insert(current_branch.clone());
+
+            $(
+                branches.insert(
                     $crate::git::make_branch!{ $rest_type $rest_args }
-                ),*
-            ];
+                );
+            )*
 
             Repository {
                 current_branch,
