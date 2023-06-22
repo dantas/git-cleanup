@@ -17,35 +17,28 @@ pub(super) struct ParseBranchResult {
     pub is_current: bool,
 }
 
-impl ParseBranchResult {
-    fn new(branch_name: &str, maybe_origin_branch: &str, is_current: bool) -> ParseBranchResult {
-        let remote_branch = RemoteBranch::try_from_vv_column(maybe_origin_branch);
-
-        ParseBranchResult {
-            branch: Branch::new(branch_name.to_owned(), remote_branch),
-            is_current,
-        }
-    }
-
-    fn new_detached() -> Self {
-        ParseBranchResult {
-            branch: Branch::Detached,
-            is_current: true,
-        }
-    }
-}
-
 impl Branch {
     pub(super) fn from_vv_line(line: &str) -> Result<ParseBranchResult, GitError> {
         let components = split_components(line)?;
 
         let branch = match components.as_slice() {
-            ["*", "(HEAD", ..] => ParseBranchResult::new_detached(),
+            ["*", "(HEAD", ..] => {
+                ParseBranchResult {
+                    branch: Branch::Detached,
+                    is_current: true,
+                }
+            }
             ["*", &ref branch_name, _, &ref maybe_origin_branch, ..] => {
-                ParseBranchResult::new(branch_name, maybe_origin_branch, true)
+                ParseBranchResult {
+                    branch: Self::from_components(branch_name, maybe_origin_branch),
+                    is_current: true,
+                }
             }
             [&ref branch_name, _, &ref maybe_origin_branch, ..] if branch_name != "*" => {
-                ParseBranchResult::new(branch_name, maybe_origin_branch, false)
+                ParseBranchResult {
+                    branch: Self::from_components(branch_name, maybe_origin_branch),
+                    is_current: false,
+                }
             }
             _ => {
                 return Err(GitError::BranchPattern {
@@ -57,12 +50,13 @@ impl Branch {
         Ok(branch)
     }
 
-    fn new(name: String, remote_branch: Option<RemoteBranch>) -> Self {
+    fn from_components(branch_name: &str, maybe_origin_branch: &str) -> Branch {
+        let remote_branch = RemoteBranch::try_from_vv_column(maybe_origin_branch);
+
+        let name = branch_name.to_string();
+
         match remote_branch {
-            Some(remote_branch) => Branch::Tracked {
-                name,
-                remote: remote_branch,
-            },
+            Some(remote) => Branch::Tracked { name, remote },
             _ => Branch::Local { name },
         }
     }
