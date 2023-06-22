@@ -22,18 +22,14 @@ impl Branch {
         let components = split_components(line)?;
 
         let branch = match components.as_slice() {
-            ["*", "(HEAD", ..] => {
-                ParseBranchResult {
-                    branch: Branch::Detached,
-                    is_current: true,
-                }
-            }
-            ["*", &ref branch_name, _, &ref maybe_origin_branch, ..] => {
-                ParseBranchResult {
-                    branch: Self::from_components(branch_name, maybe_origin_branch),
-                    is_current: true,
-                }
-            }
+            ["*", "(HEAD", ..] => ParseBranchResult {
+                branch: Branch::Detached,
+                is_current: true,
+            },
+            ["*", &ref branch_name, _, &ref maybe_origin_branch, ..] => ParseBranchResult {
+                branch: Self::from_components(branch_name, maybe_origin_branch),
+                is_current: true,
+            },
             [&ref branch_name, _, &ref maybe_origin_branch, ..] if branch_name != "*" => {
                 ParseBranchResult {
                     branch: Self::from_components(branch_name, maybe_origin_branch),
@@ -43,7 +39,7 @@ impl Branch {
             _ => {
                 return Err(GitError::BranchPattern {
                     line: line.to_string(),
-                });
+                })
             }
         };
 
