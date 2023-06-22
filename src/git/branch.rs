@@ -1,26 +1,21 @@
-use regex::Regex;
-use crate::git::RemoteBranch;
-use crate::error::Error;
 use crate::error;
+use crate::error::Error;
+use crate::git::RemoteBranch;
+use regex::Regex;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Branch {
-    Tracked {
-        name: String,
-        remote: RemoteBranch,
-    },
+    Tracked { name: String, remote: RemoteBranch },
 
-    Local {
-        name: String,
-    },
+    Local { name: String },
 
-    Detached
+    Detached,
 }
 
 #[derive(Debug, PartialEq)]
 pub(super) struct ParseBranchResult {
     pub branch: Branch,
-    pub is_current: bool
+    pub is_current: bool,
 }
 
 impl ParseBranchResult {
@@ -46,16 +41,19 @@ impl Branch {
         let components = split_components(line)?;
 
         let branch = match components.as_slice() {
-            ["*", "(HEAD", ..] => { 
-                ParseBranchResult::new_detached()
-            }
+            ["*", "(HEAD", ..] => ParseBranchResult::new_detached(),
             ["*", &ref branch_name, _, &ref maybe_origin_branch, ..] => {
                 ParseBranchResult::new(branch_name, maybe_origin_branch, true)
             }
             [&ref branch_name, _, &ref maybe_origin_branch, ..] if branch_name != "*" => {
                 ParseBranchResult::new(branch_name, maybe_origin_branch, false)
             }
-            _ => return Result::Err(error::new_error_with_string!("String format not recognized {}", line))
+            _ => {
+                return Err(error::new_error_with_string!(
+                    "String format not recognized {}",
+                    line
+                ))
+            }
         };
 
         Ok(branch)
@@ -63,12 +61,11 @@ impl Branch {
 
     fn new(name: String, remote_branch: Option<RemoteBranch>) -> Self {
         match remote_branch {
-            Some(remote_branch) => {
-                Branch::Tracked { name, remote: remote_branch }
-            }
-            _ => {
-                Branch::Local { name }
-            }
+            Some(remote_branch) => Branch::Tracked {
+                name,
+                remote: remote_branch,
+            },
+            _ => Branch::Local { name },
         }
     }
 }
@@ -81,7 +78,7 @@ fn split_components(line: &str) -> Result<Vec<&str>, Error> {
         .filter_map(|c| c.get(0))
         .map(|m| m.as_str());
 
-    let vec= Vec::from_iter(captures_iter);
+    let vec = Vec::from_iter(captures_iter);
 
     Ok(vec)
 }
@@ -96,50 +93,37 @@ impl From<regex::Error> for Error {
 fn test_parse_detached_head() {
     let sut = Branch::from_vv_line("* (HEAD detached at 1f02cc2) 1f02cc2 Initial commit").unwrap();
 
-    let expected =
-        ParseBranchResult {
-            branch: Branch::Detached,
-            is_current: true,
-        };
+    let expected = ParseBranchResult {
+        branch: Branch::Detached,
+        is_current: true,
+    };
 
-    assert_eq!(
-        sut,
-        expected
-    );
+    assert_eq!(sut, expected);
 }
 
 #[test]
 fn test_parse_currently_checked_out_tracked_branch() {
-    let sut = Branch::from_vv_line("*  main  1f02cc2 [origin/main: ahead by 2] Initial commit").unwrap();
+    let sut =
+        Branch::from_vv_line("*  main  1f02cc2 [origin/main: ahead by 2] Initial commit").unwrap();
 
-    let expected =
-        ParseBranchResult {
-            branch: tracked_branch!{"main", remote_branch("main", "origin")},
-            is_current: true
-        };
+    let expected = ParseBranchResult {
+        branch: tracked_branch! {"main", remote_branch("main", "origin")},
+        is_current: true,
+    };
 
-    assert_eq!(
-        sut,
-        expected
-    );
+    assert_eq!(sut, expected);
 }
 
 #[test]
 fn test_parse_local_branch() {
     let sut = Branch::from_vv_line("develop    1f02cc2 Initial commit").unwrap();
 
-    let expected =
-        ParseBranchResult {
-            branch: local_branch!("develop"),
-            is_current: false,
-        };
+    let expected = ParseBranchResult {
+        branch: local_branch!("develop"),
+        is_current: false,
+    };
 
-    assert_eq!(
-        sut,
-        expected
-    );
-
-
+    assert_eq!(sut, expected);
 }
 
 #[test]
@@ -147,9 +131,9 @@ fn test_parse_invalid_lines() {
     assert!(Branch::from_vv_line(" ").is_err());
 
     assert!(Branch::from_vv_line("first").is_err());
-    
+
     assert!(Branch::from_vv_line("* first").is_err());
-    
+
     assert!(Branch::from_vv_line("* first second").is_err());
 }
 

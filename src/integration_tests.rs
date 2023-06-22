@@ -1,9 +1,9 @@
 // I could've used the lib+bin approach, but in the end I decided to create a custom module to handle integration tests
 
-use crate::git;
-use crate::execute;
-use crate::git::Repository;
 use crate::error::Error;
+use crate::execute;
+use crate::git;
+use crate::git::Repository;
 
 #[test]
 fn test_standard_repository() -> Result<(), Error> {
@@ -34,7 +34,6 @@ fn test_standard_repository() -> Result<(), Error> {
             ("git", "checkout", "develop")
     };
 
-
     let sut = git::query_repository(&local)?;
 
     let expected = git::repository! {
@@ -53,7 +52,7 @@ use std::fs;
 use std::path::PathBuf;
 
 struct TempDir {
-    path: PathBuf
+    path: PathBuf,
 }
 
 impl TempDir {
@@ -66,7 +65,7 @@ impl TempDir {
 
     fn join<P: AsRef<std::path::Path>>(&self, path: P) -> TempDir {
         TempDir {
-            path: self.path.join(path.as_ref())
+            path: self.path.join(path.as_ref()),
         }
     }
 }

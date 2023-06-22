@@ -1,5 +1,5 @@
-use std::fmt::Display;
 use crate::git::{Branch, Repository};
+use std::fmt::Display;
 use std::iter::Iterator;
 
 pub fn list(repository: &Repository, args: &[&str]) {
@@ -34,22 +34,18 @@ pub fn print_list_help() {
 }
 
 fn print_local(repository: &Repository) {
-    print_branches(
-        repository, 
-        "Local branches",
-        |b| matches!(b, Branch::Local {..})
-    )
+    print_branches(repository, "Local branches", |b| {
+        matches!(b, Branch::Local { .. })
+    })
 }
 
 fn print_tracked(repository: &Repository) {
-    print_branches(
-        repository,
-        "Tracked branches",
-        |b| matches!(b, Branch::Local {..})
-    )
+    print_branches(repository, "Tracked branches", |b| {
+        matches!(b, Branch::Local { .. })
+    })
 }
 
-fn print_branches<F : Fn(&&Branch) -> bool>(repository: &Repository, message: &str, filter: F) {
+fn print_branches<F: Fn(&&Branch) -> bool>(repository: &Repository, message: &str, filter: F) {
     println!("{}:", message);
 
     for branch in repository.branches.iter().filter(filter) {
@@ -67,7 +63,7 @@ fn parse_mode(args: &[&str]) -> Option<Mode> {
         ["--tracked"] => Some(Mode::Tracked),
         ["--local"] => Some(Mode::Local),
         [] => Some(Mode::Local), // default option if no arg is provided
-        _ => None
+        _ => None,
     }
 }
 
@@ -75,7 +71,7 @@ fn parse_mode(args: &[&str]) -> Option<Mode> {
 enum Mode {
     Local,
     Tracked,
-    All
+    All,
 }
 
 impl Display for Branch {
@@ -83,7 +79,7 @@ impl Display for Branch {
         match self {
             Branch::Tracked { name, remote } => {
                 write!(formatter, "{} => {}/{}", name, remote.remote, remote.name)
-            },
+            }
             Branch::Local { name } => write!(formatter, "{}", name),
             Branch::Detached => write!(formatter, "Detached"),
         }

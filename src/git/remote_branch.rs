@@ -18,20 +18,19 @@ impl RemoteBranch {
             return None;
         }
 
-        let index_ending = 
-            if let Some(index_colon) = string.find(':') {
-                index_colon
-            } else {
-                string.len()-1
-            };
+        let index_ending = if let Some(index_colon) = string.find(':') {
+            index_colon
+        } else {
+            string.len() - 1
+        };
 
         let remote_branch = RemoteBranch {
             remote: string[1..index_slash].to_owned(),
-            name: string[index_slash+1..index_ending].to_owned(), 
+            name: string[index_slash + 1..index_ending].to_owned(),
         };
 
         Some(remote_branch)
-    }    
+    }
 }
 
 impl std::fmt::Display for RemoteBranch {
@@ -82,7 +81,7 @@ macro_rules! remote_branch {
     ($branch_name:literal, $remote_name:literal) => {
         $crate::git::RemoteBranch {
             name: $branch_name.to_owned(),
-            remote: $remote_name.to_owned()
+            remote: $remote_name.to_owned(),
         }
     };
 }

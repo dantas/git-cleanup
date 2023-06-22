@@ -56,15 +56,21 @@ fn delete_branch<P: AsRef<std::path::Path>>(path: P, branch_name: &String, mode:
     let result = execute::execute(&path, "git", ["branch", "-d", branch_name]);
 
     if result.is_err() {
-        println!("An error occurred while deleting branch {}, aborting cleanup", branch_name)
+        println!(
+            "An error occurred while deleting branch {}, aborting cleanup",
+            branch_name
+        )
     }
 
     result.is_ok()
 }
 
 fn notify_step(branch_name: &String) -> bool {
-    println!("About to delete branch {}, type y and press enter to continue", branch_name);
-    
+    println!(
+        "About to delete branch {}, type y and press enter to continue",
+        branch_name
+    );
+
     let mut line = String::new();
     let result = io::stdin().read_line(&mut line);
 

@@ -1,12 +1,14 @@
-use crate::error::Error;
 use crate::error;
+use crate::error::Error;
 use std::process::Command;
 use std::process::ExitStatus;
 
 pub fn execute<P, A, S>(path: P, command: S, args: A) -> Result<String, Error>
-    where P : AsRef<std::path::Path>,
-          A : AsRef<[S]> + IntoIterator<Item=S>,
-          S : AsRef<std::ffi::OsStr> {
+where
+    P: AsRef<std::path::Path>,
+    A: AsRef<[S]> + IntoIterator<Item = S>,
+    S: AsRef<std::ffi::OsStr>,
+{
     let mut command = Command::new(command);
 
     command.current_dir(path).args(args);
@@ -29,13 +31,11 @@ fn check_for_success(status: ExitStatus) -> Result<(), Error> {
         Some(code) => {
             error::new_error_with_string!("Error executing command: {}", code)
         }
-        _ => {
-            Error::new_with_str("Error executing command")
-        }
+        _ => Error::new_with_str("Error executing command"),
     };
 
     Err(error)
-}           
+}
 
 impl From<std::io::Error> for Error {
     fn from(error: std::io::Error) -> Self {

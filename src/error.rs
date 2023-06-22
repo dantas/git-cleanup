@@ -46,12 +46,8 @@ impl std::fmt::Display for Error {
 impl std::error::Error for Error {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
-            Error::Message(_) => {
-                None
-            }
-            Error::Source(box_source) => {
-                Some(box_source.as_ref())
-            }
+            Error::Message(_) => None,
+            Error::Source(box_source) => Some(box_source.as_ref()),
         }
     }
 }
