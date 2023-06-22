@@ -1,3 +1,5 @@
+#![cfg(feature = "integration")]
+
 // I could've used the lib+bin approach, but in the end I decided to create a custom module to handle integration tests
 
 use crate::error::Error;
@@ -6,7 +8,7 @@ use crate::git;
 use crate::git::Repository;
 
 #[test]
-fn test_standard_repository() -> Result<(), Error> {
+fn test_query_repository() -> Result<(), Error> {
     let root = TempDir::new()?;
     let remote = root.join("remote");
     let local = root.join("local");
@@ -45,6 +47,9 @@ fn test_standard_repository() -> Result<(), Error> {
 
     Ok(())
 }
+
+// #[test]
+// fn test_
 
 use rand;
 use std::env;
