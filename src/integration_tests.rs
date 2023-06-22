@@ -1,4 +1,4 @@
-// #![cfg(feature = "integration")]
+#![cfg(feature = "integration")]
 
 // I could've used the lib+bin approach, but in the end I decided to create a custom module to handle integration tests
 
@@ -85,8 +85,7 @@ fn test_clean() -> Result<(), Error> {
 
     let repository = git::query_repository(&local)?;
 
-    let temp = Vec::<&str>::new();
-    commands::clean(&local, repository, temp.as_ref());
+    commands::clean(&local, repository, &[]);
 
     let sut = git::query_repository(&local)?;
 
