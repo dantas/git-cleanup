@@ -3,17 +3,15 @@ use std::env;
 
 mod args;
 mod commands;
-mod error;
 mod execute;
 mod git;
 
 #[cfg(all(test, feature = "integration"))]
 mod integration_tests;
 
-use error::Error;
-
-fn main() -> Result<(), Error> {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let path = env::current_dir()?;
+
     let repository = git::query_repository(&path)?;
 
     match VecArgs::new().as_vec_str().as_slice() {

@@ -1,9 +1,8 @@
-use crate::error;
-use crate::error::Error;
 use std::process::Command;
 use std::process::ExitStatus;
+use thiserror::Error;
 
-pub fn execute<P, A, S>(path: P, command: S, args: A) -> Result<String, Error>
+pub fn execute<P, A, S>(path: P, command: S, args: A) -> Result<String, ExecuteError>
 where
     P: AsRef<std::path::Path>,
     A: AsRef<[S]> + IntoIterator<Item = S>,
@@ -17,36 +16,39 @@ where
 
     check_for_success(output.status)?;
 
-    let stdout_as_string = String::from_utf8(output.stdout)?;
-
-    Ok(stdout_as_string)
+    Ok(String::from_utf8(output.stdout)?)
 }
 
-fn check_for_success(status: ExitStatus) -> Result<(), Error> {
+fn check_for_success(status: ExitStatus) -> Result<(), ExecuteError> {
     if status.success() {
         return Ok(());
     }
 
-    let error = match status.code() {
-        Some(code) => {
-            error::new_error_with_string!("Error executing command: {}", code)
-        }
-        _ => Error::new_with_str("Error executing command"),
-    };
-
-    Err(error)
-}
-
-impl From<std::io::Error> for Error {
-    fn from(error: std::io::Error) -> Self {
-        Error::new_with_source(Box::new(error))
+    match status.code() {
+        Some(code) => Err(ExecuteError::CommandErrorCode { code }),
+        _ => Err(ExecuteError::CommandError),
     }
 }
 
-impl From<std::string::FromUtf8Error> for Error {
-    fn from(error: std::string::FromUtf8Error) -> Self {
-        Error::new_with_source(Box::new(error))
-    }
+#[derive(Error, Debug)]
+pub enum ExecuteError {
+    #[error("Error executing command")]
+    Io {
+        #[from]
+        source: std::io::Error,
+    },
+
+    #[error("Error parsing git command output")]
+    Parse {
+        #[from]
+        source: std::string::FromUtf8Error,
+    },
+
+    #[error("Error executing command, status code {code}")]
+    CommandErrorCode { code: i32 },
+
+    #[error("Error executing command")]
+    CommandError,
 }
 
 #[cfg(test)]

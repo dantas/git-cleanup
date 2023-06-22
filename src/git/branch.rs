@@ -1,5 +1,4 @@
-use crate::error;
-use crate::error::Error;
+use crate::git::GitError;
 use crate::git::RemoteBranch;
 use regex::Regex;
 
@@ -37,7 +36,7 @@ impl ParseBranchResult {
 }
 
 impl Branch {
-    pub(super) fn from_vv_line(line: &str) -> Result<ParseBranchResult, Error> {
+    pub(super) fn from_vv_line(line: &str) -> Result<ParseBranchResult, GitError> {
         let components = split_components(line)?;
 
         let branch = match components.as_slice() {
@@ -49,10 +48,9 @@ impl Branch {
                 ParseBranchResult::new(branch_name, maybe_origin_branch, false)
             }
             _ => {
-                return Err(error::new_error_with_string!(
-                    "String format not recognized {}",
-                    line
-                ))
+                return Err(GitError::BranchPattern {
+                    line: line.to_string(),
+                });
             }
         };
 
@@ -70,7 +68,7 @@ impl Branch {
     }
 }
 
-fn split_components(line: &str) -> Result<Vec<&str>, Error> {
+fn split_components(line: &str) -> Result<Vec<&str>, GitError> {
     let regex = Regex::new(r"(\[.*\])+|(\S)+")?;
 
     let captures_iter = regex
@@ -81,12 +79,6 @@ fn split_components(line: &str) -> Result<Vec<&str>, Error> {
     let vec = Vec::from_iter(captures_iter);
 
     Ok(vec)
-}
-
-impl From<regex::Error> for Error {
-    fn from(source: regex::Error) -> Self {
-        Error::new_with_source(Box::new(source))
-    }
 }
 
 #[test]

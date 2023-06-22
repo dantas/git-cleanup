@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
-use crate::error::Error;
 use crate::git::Branch;
+use crate::git::GitError;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Repository {
@@ -10,7 +10,7 @@ pub struct Repository {
 }
 
 impl Repository {
-    pub(super) fn from_vv_stdout<S: AsRef<str>>(command_stdout: S) -> Result<Repository, Error> {
+    pub(super) fn from_vv_stdout<S: AsRef<str>>(command_stdout: S) -> Result<Repository, GitError> {
         let mut branches = HashSet::new();
         let mut current_branch = None;
 
@@ -29,7 +29,7 @@ impl Repository {
                 current_branch,
                 branches,
             }),
-            None => Err(Error::new_with_str("Current branch not found")),
+            None => Err(GitError::CurrentBranch),
         }
     }
 }

@@ -1,13 +1,12 @@
 // I could've used the lib+bin approach, but in the end I decided to create a custom module to handle integration tests
 
 use crate::commands;
-use crate::error::Error;
 use crate::execute;
 use crate::git;
 use crate::git::Repository;
 
 #[test]
-fn test_query_repository() -> Result<(), Error> {
+fn test_query_repository() -> Result<(), Box<dyn std::error::Error>> {
     let root = TempDir::new()?;
     let remote = root.join("remote");
     let local = root.join("local");
@@ -48,7 +47,7 @@ fn test_query_repository() -> Result<(), Error> {
 }
 
 #[test]
-fn test_clean() -> Result<(), Error> {
+fn test_clean() -> Result<(), Box<dyn std::error::Error>> {
     let root = TempDir::new()?;
     let remote = root.join("remote");
     let local = root.join("local");
@@ -108,7 +107,7 @@ struct TempDir {
 }
 
 impl TempDir {
-    fn new() -> Result<Self, Error> {
+    fn new() -> Result<Self, Box<dyn std::error::Error>> {
         let random_dir_name = rand::random::<u32>().to_string();
         let path = env::temp_dir().join(random_dir_name);
         fs::create_dir(path.clone())?;
