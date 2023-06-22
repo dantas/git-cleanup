@@ -24,7 +24,7 @@ impl Repository {
     
         match current_branch {
             Some(current_branch) => {
-                Result::Ok(
+                Ok(
                     Repository {
                         current_branch,
                         branches,
@@ -32,7 +32,7 @@ impl Repository {
                 )
             }
             None => {
-                Result::Err(
+               Err(
                     Error::new_with_str("Current branch not found")
                 )
             }

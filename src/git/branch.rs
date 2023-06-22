@@ -58,7 +58,7 @@ impl Branch {
             _ => return Result::Err(error::new_error_with_string!("String format not recognized {}", line))
         };
 
-        Result::Ok(branch)
+        Ok(branch)
     }
 
     fn new(name: String, remote_branch: Option<RemoteBranch>) -> Self {
@@ -83,7 +83,7 @@ fn split_components(line: &str) -> Result<Vec<&str>, Error> {
 
     let vec= Vec::from_iter(captures_iter);
 
-    Result::Ok(vec)
+    Ok(vec)
 }
 
 impl From<regex::Error> for Error {

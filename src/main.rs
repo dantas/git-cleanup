@@ -26,7 +26,7 @@ fn main() -> Result<(), Error> {
         }
     };
 
-    Result::Ok(())
+    Ok(())
 }
 
 fn print_help() {

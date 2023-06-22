@@ -30,14 +30,13 @@ impl RemoteBranch {
             name: string[index_slash+1..index_ending].to_owned(), 
         };
 
-        return Some(remote_branch)
+        Some(remote_branch)
     }    
 }
 
 impl std::fmt::Display for RemoteBranch {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Branch: {} - Origin: {}", self.name, self.remote)?;
-        std::fmt::Result::Ok(())
+        write!(f, "Branch: {} - Origin: {}", self.name, self.remote)
     }
 }
 

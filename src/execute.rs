@@ -17,12 +17,12 @@ pub fn execute<P, A, S>(path: P, command: S, args: A) -> Result<String, Error>
 
     let stdout_as_string = String::from_utf8(output.stdout)?;
 
-    Result::Ok(stdout_as_string)
+    Ok(stdout_as_string)
 }
 
 fn check_for_success(status: ExitStatus) -> Result<(), Error> {
     if status.success() {
-        return Result::Ok(())
+        return Ok(());
     }
 
     let error = match status.code() {
@@ -34,7 +34,7 @@ fn check_for_success(status: ExitStatus) -> Result<(), Error> {
         }
     };
 
-    Result::Err(error)
+    Err(error)
 }           
 
 impl From<std::io::Error> for Error {

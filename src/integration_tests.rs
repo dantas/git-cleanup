@@ -44,7 +44,7 @@ fn test_standard_repository() -> Result<(), Error> {
 
     assert_eq!(sut, expected);
 
-    Result::Ok(())
+    Ok(())
 }
 
 use rand;
@@ -61,9 +61,7 @@ impl TempDir {
         let random_dir_name = rand::random::<u32>().to_string();
         let path = env::temp_dir().join(random_dir_name);
         fs::create_dir(path.clone())?;
-        Result::Ok(
-            TempDir { path }
-        )
+        Ok(TempDir { path })
     }
 
     fn join<P: AsRef<std::path::Path>>(&self, path: P) -> TempDir {
@@ -75,7 +73,7 @@ impl TempDir {
 
 impl AsRef<std::path::Path> for TempDir {
     fn as_ref(&self) -> &std::path::Path {
-        return &self.path
+        &self.path
     }
 }
 
