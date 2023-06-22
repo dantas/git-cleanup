@@ -1,7 +1,8 @@
-#![cfg(feature = "integration")]
+// #![cfg(feature = "integration")]
 
 // I could've used the lib+bin approach, but in the end I decided to create a custom module to handle integration tests
 
+use crate::commands;
 use crate::error::Error;
 use crate::execute;
 use crate::git;
@@ -48,8 +49,57 @@ fn test_query_repository() -> Result<(), Error> {
     Ok(())
 }
 
-// #[test]
-// fn test_
+#[test]
+fn test_clean() -> Result<(), Error> {
+    let root = TempDir::new()?;
+    let remote = root.join("remote");
+    let local = root.join("local");
+
+    execute::sequence_execute! {
+        root:
+            ("mkdir", "remote")
+
+        remote:
+            ("git", "init", "-b", "main"),
+            ("touch", ".mainfile"),
+            ("git", "add", ".mainfile"),
+            ("git", "commit", "-m", "Main commit"),
+            ("git", "checkout", "-b", "develop"),
+            ("touch", ".developfile"),
+            ("git", "add", ".developfile"),
+            ("git", "commit", "-m", "Develop commit"),
+            ("git", "checkout", "main")
+
+        root:
+            ("git", "clone", "-l", "remote", "local")
+
+        local:
+            ("git", "checkout", "main"),
+            ("git", "checkout", "develop"),
+            ("git", "checkout", "-b", "local"),
+            ("touch", ".localfile"),
+            ("git",  "add", ".localfile"),
+            ("git", "commit", "-m", "Local commit"),
+            ("git", "checkout", "-b", "local_checkout")
+    };
+
+    let repository = git::query_repository(&local)?;
+
+    let temp = Vec::<&str>::new();
+    commands::clean(&local, repository, temp.as_ref());
+
+    let sut = git::query_repository(&local)?;
+
+    let expected = git::repository! {
+        *local_branch("local_checkout"),
+        tracked_branch { "develop", remote_branch("develop", "origin") },
+        tracked_branch { "main", remote_branch("main", "origin") },
+    };
+
+    assert_eq!(sut, expected);
+
+    Ok(())
+}
 
 use rand;
 use std::env;
