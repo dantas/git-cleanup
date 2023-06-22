@@ -41,7 +41,7 @@ fn print_local(repository: &Repository) {
 
 fn print_tracked(repository: &Repository) {
     print_branches(repository, "Tracked branches", |b| {
-        matches!(b, Branch::Local { .. })
+        matches!(b, Branch::Tracked { .. })
     })
 }
 
