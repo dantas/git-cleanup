@@ -7,7 +7,7 @@ mod error;
 mod execute;
 mod git;
 
-#[cfg(test)]
+#[cfg(all(test, feature = "integration"))]
 mod integration_tests;
 
 use error::Error;
