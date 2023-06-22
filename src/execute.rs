@@ -50,6 +50,7 @@ impl From<std::string::FromUtf8Error> for Error {
 }
 
 #[cfg(test)]
+#[allow(unused_macros)]
 macro_rules! sequence_execute {
     ( $path:ident : ($command:literal, $($arg:expr),*) ) => {
         let _ = $crate::execute::execute(&$path, &$command, [$(&$arg),*]);
@@ -75,4 +76,5 @@ macro_rules! sequence_execute {
 }
 
 #[cfg(test)]
+#[allow(unused_imports)]
 pub(crate) use sequence_execute;

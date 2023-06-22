@@ -77,6 +77,7 @@ fn test_parse_invalid_lines() {
 }
 
 #[cfg(test)]
+#[allow(unused_macros)]
 macro_rules! remote_branch {
     ($branch_name:literal, $remote_name:literal) => {
         $crate::git::RemoteBranch {
@@ -87,4 +88,5 @@ macro_rules! remote_branch {
 }
 
 #[cfg(test)]
+#[allow(unused_imports)]
 pub(crate) use remote_branch;

@@ -138,6 +138,7 @@ fn test_parse_invalid_lines() {
 }
 
 #[cfg(test)]
+#[allow(unused_macros)]
 macro_rules! tracked_branch {
     ($name:literal, remote_branch ( $remote_name:literal, $remote_origin: literal ) ) => {
         $crate::git::Branch::Tracked {
@@ -148,9 +149,11 @@ macro_rules! tracked_branch {
 }
 
 #[cfg(test)]
+#[allow(unused_imports)]
 pub(crate) use tracked_branch;
 
 #[cfg(test)]
+#[allow(unused_macros)]
 macro_rules! local_branch {
     ($name:literal) => {
         $crate::git::Branch::Local {
@@ -160,9 +163,11 @@ macro_rules! local_branch {
 }
 
 #[cfg(test)]
+#[allow(unused_imports)]
 pub(crate) use local_branch;
 
 #[cfg(test)]
+#[allow(unused_macros)]
 macro_rules! make_branch {
     ( detached ) => {
         $crate::git::Branch::Detached
@@ -178,4 +183,5 @@ macro_rules! make_branch {
 }
 
 #[cfg(test)]
+#[allow(unused_imports)]
 pub(crate) use make_branch;

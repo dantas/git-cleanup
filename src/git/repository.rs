@@ -100,6 +100,7 @@ fn test_dettached_branch() {
 }
 
 #[cfg(test)]
+#[allow(unused_macros)]
 macro_rules! repository {
     ( * $type:ident $args:tt $( , $rest_type:ident $rest_args:tt )* $(,)? ) => {
         {
@@ -145,4 +146,5 @@ macro_rules! repository {
 }
 
 #[cfg(test)]
+#[allow(unused_imports)]
 pub(crate) use repository;
