@@ -99,7 +99,7 @@ fn test_dettached_branch() {
 
 #[cfg(test)]
 macro_rules! repository {
-    ( * $type:ident $args:tt $( , $rest_type:ident $rest_args:tt ),* $(,)? ) => {
+    ( * $type:ident $args:tt $( , $rest_type:ident $rest_args:tt )* $(,)? ) => {
         {
             let current_branch = $crate::git::make_branch!($type $args);
 
