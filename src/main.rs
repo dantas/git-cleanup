@@ -12,7 +12,8 @@ mod integration_tests;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let path = env::current_dir()?;
 
-    let repository = git::query_repository(&path)?;
+    let git_output = git::query(&path)?;
+    let repository = git::repository_from(&git_output)?;
 
     match VecArgs::new().as_vec_str().as_slice() {
         ["list", args @ ..] => commands::list(&repository, args),

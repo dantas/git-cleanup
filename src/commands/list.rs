@@ -74,7 +74,7 @@ enum Mode {
     All,
 }
 
-impl Display for Branch {
+impl<'a> Display for Branch<'a> {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Branch::Tracked { name, remote } => {

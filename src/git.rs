@@ -10,13 +10,16 @@ pub use remote_branch::*;
 mod branch;
 pub use branch::*;
 
-use crate::execute;
+use crate::execute::{self, ExecuteError};
 
-pub fn query_repository<P>(path: P) -> Result<Repository, Box<dyn std::error::Error>>
-where
-    P: AsRef<std::path::Path>,
-{
-    let branch_vv_stdout: String = execute::execute(path, "git", ["branch", "-vv"])?;
-    let repository = Repository::from_vv_stdout(branch_vv_stdout)?;
+pub struct GitOutput(String);
+
+pub fn query(path: impl AsRef<std::path::Path>) -> Result<GitOutput, ExecuteError> {
+    let output = execute::execute(&path, "git", ["branch", "-vv"])?;
+    Ok(GitOutput(output))
+}
+
+pub fn repository_from(output: &GitOutput) -> Result<Repository, GitError> {
+    let repository = Repository::from_vv_stdout(&output.0)?;
     Ok(repository)
 }

@@ -3,22 +3,27 @@ use crate::git::RemoteBranch;
 use regex::Regex;
 
 #[derive(Debug, Clone, PartialEq, Hash, Eq)]
-pub enum Branch {
-    Tracked { name: String, remote: RemoteBranch },
+pub enum Branch<'a> {
+    Tracked {
+        name: &'a str,
+        remote: RemoteBranch<'a>,
+    },
 
-    Local { name: String },
+    Local {
+        name: &'a str,
+    },
 
     Detached,
 }
 
 #[derive(Debug, PartialEq)]
-pub(super) struct ParseBranchResult {
-    pub branch: Branch,
+pub(super) struct ParseBranchResult<'a> {
+    pub branch: Branch<'a>,
     pub is_current: bool,
 }
 
-impl Branch {
-    pub(super) fn from_vv_line(line: &str) -> Result<ParseBranchResult, GitError> {
+impl<'a> Branch<'a> {
+    pub(super) fn from_vv_line(line: &'a str) -> Result<ParseBranchResult<'a>, GitError> {
         let components = split_components(line)?;
 
         let branch = match components.as_slice() {
@@ -27,12 +32,12 @@ impl Branch {
                 is_current: true,
             },
             ["*", &ref branch_name, _, &ref maybe_origin_branch, ..] => ParseBranchResult {
-                branch: Self::from_components(branch_name, maybe_origin_branch),
+                branch: Branch::from_components(branch_name, maybe_origin_branch),
                 is_current: true,
             },
             [&ref branch_name, _, &ref maybe_origin_branch, ..] if branch_name != "*" => {
                 ParseBranchResult {
-                    branch: Self::from_components(branch_name, maybe_origin_branch),
+                    branch: Branch::from_components(branch_name, maybe_origin_branch),
                     is_current: false,
                 }
             }
@@ -46,14 +51,15 @@ impl Branch {
         Ok(branch)
     }
 
-    fn from_components(branch_name: &str, maybe_origin_branch: &str) -> Branch {
+    fn from_components(branch_name: &'a str, maybe_origin_branch: &'a str) -> Self {
         let remote_branch = RemoteBranch::try_from_vv_column(maybe_origin_branch);
 
-        let name = branch_name.to_string();
-
         match remote_branch {
-            Some(remote) => Branch::Tracked { name, remote },
-            _ => Branch::Local { name },
+            Some(remote) => Branch::Tracked {
+                name: branch_name,
+                remote,
+            },
+            _ => Branch::Local { name: branch_name },
         }
     }
 }
@@ -124,7 +130,7 @@ fn test_parse_invalid_lines() {
 macro_rules! tracked_branch {
     ($name:literal, remote_branch ( $remote_name:literal, $remote_origin: literal ) ) => {
         $crate::git::Branch::Tracked {
-            name: $name.to_owned(),
+            name: $name,
             remote: crate::git::remote_branch!($remote_name, $remote_origin),
         }
     };
@@ -138,9 +144,7 @@ pub(crate) use tracked_branch;
 #[allow(unused_macros)]
 macro_rules! local_branch {
     ($name:literal) => {
-        $crate::git::Branch::Local {
-            name: $name.to_owned(),
-        }
+        $crate::git::Branch::Local { name: $name }
     };
 }
 

@@ -4,17 +4,17 @@ use crate::git::Branch;
 use crate::git::GitError;
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct Repository {
-    pub current_branch: Branch,
-    pub branches: HashSet<Branch>,
+pub struct Repository<'a> {
+    pub current_branch: Branch<'a>,
+    pub branches: HashSet<Branch<'a>>,
 }
 
-impl Repository {
-    pub(super) fn from_vv_stdout<S: AsRef<str>>(command_stdout: S) -> Result<Repository, GitError> {
+impl<'a> Repository<'a> {
+    pub(super) fn from_vv_stdout(command_stdout: &'a str) -> Result<Self, GitError> {
         let mut branches = HashSet::new();
         let mut current_branch = None;
 
-        for line in command_stdout.as_ref().lines() {
+        for line in command_stdout.lines() {
             let result = Branch::from_vv_line(line)?;
 
             if result.is_current {

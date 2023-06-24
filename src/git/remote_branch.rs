@@ -1,11 +1,11 @@
 #[derive(Debug, Clone, PartialEq, Hash, Eq)]
-pub struct RemoteBranch {
-    pub name: String,
-    pub remote: String,
+pub struct RemoteBranch<'a> {
+    pub name: &'a str,
+    pub remote: &'a str,
 }
 
-impl RemoteBranch {
-    pub(super) fn try_from_vv_column(string: &str) -> Option<RemoteBranch> {
+impl<'a> RemoteBranch<'a> {
+    pub(super) fn try_from_vv_column(string: &'a str) -> Option<Self> {
         let index_slash;
 
         if let Some(i) = string.find('/') {
@@ -25,15 +25,15 @@ impl RemoteBranch {
         };
 
         let remote_branch = RemoteBranch {
-            remote: string[1..index_slash].to_owned(),
-            name: string[index_slash + 1..index_ending].to_owned(),
+            remote: &string[1..index_slash],
+            name: &string[index_slash + 1..index_ending],
         };
 
         Some(remote_branch)
     }
 }
 
-impl std::fmt::Display for RemoteBranch {
+impl<'a> std::fmt::Display for RemoteBranch<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "Branch: {} - Origin: {}", self.name, self.remote)
     }
@@ -81,8 +81,8 @@ fn test_parse_invalid_lines() {
 macro_rules! remote_branch {
     ($branch_name:literal, $remote_name:literal) => {
         $crate::git::RemoteBranch {
-            name: $branch_name.to_owned(),
-            remote: $remote_name.to_owned(),
+            name: $branch_name,
+            remote: $remote_name,
         }
     };
 }

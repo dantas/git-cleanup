@@ -38,7 +38,7 @@ pub fn print_clean_help() {
     println!("    -step: Ask for user confirmation before deleting each branch");
 }
 
-fn skip_branch(branch: &Branch, branch_name: &String, repository: &Repository) -> bool {
+fn skip_branch(branch: &Branch, branch_name: &str, repository: &Repository) -> bool {
     let skip = branch == &repository.current_branch;
 
     if skip {
@@ -48,7 +48,7 @@ fn skip_branch(branch: &Branch, branch_name: &String, repository: &Repository) -
     skip
 }
 
-fn delete_branch<P: AsRef<std::path::Path>>(path: P, branch_name: &String, mode: Mode) -> bool {
+fn delete_branch<P: AsRef<std::path::Path>>(path: P, branch_name: &str, mode: Mode) -> bool {
     if mode == Mode::Step && !notify_step(branch_name) {
         return false;
     }
@@ -65,7 +65,7 @@ fn delete_branch<P: AsRef<std::path::Path>>(path: P, branch_name: &String, mode:
     result.is_ok()
 }
 
-fn notify_step(branch_name: &String) -> bool {
+fn notify_step(branch_name: &str) -> bool {
     println!(
         "About to delete branch {}, type y and press enter to continue",
         branch_name
