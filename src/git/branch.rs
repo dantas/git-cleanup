@@ -35,12 +35,10 @@ impl<'a> Branch<'a> {
                 branch: Branch::from_components(branch_name, maybe_origin_branch),
                 is_current: true,
             },
-            [branch_name, _, maybe_origin_branch, ..] if *branch_name != "*" => {
-                ParseBranchResult {
-                    branch: Branch::from_components(branch_name, maybe_origin_branch),
-                    is_current: false,
-                }
-            }
+            [branch_name, _, maybe_origin_branch, ..] if *branch_name != "*" => ParseBranchResult {
+                branch: Branch::from_components(branch_name, maybe_origin_branch),
+                is_current: false,
+            },
             _ => {
                 return Err(GitError::BranchPattern {
                     line: line.to_string(),
