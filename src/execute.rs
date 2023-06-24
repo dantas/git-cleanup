@@ -55,7 +55,7 @@ pub enum ExecuteError {
 #[allow(unused_macros)]
 macro_rules! sequence_execute {
     ( $path:ident : ($command:literal, $($arg:expr),*) ) => {
-        let _ = $crate::execute::execute(&$path, &$command, [$(&$arg),*]);
+        $crate::execute::execute(&$path, &$command, [$(&$arg),*])?;
     };
 
     ( $path:ident : $($command_and_args:tt),+ ) => {
