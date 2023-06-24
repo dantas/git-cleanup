@@ -14,7 +14,7 @@ impl<'a> RemoteBranch<'a> {
             return None;
         }
 
-        if !string.starts_with("[") || !string.ends_with("]") {
+        if !string.starts_with('[') || !string.ends_with(']') {
             return None;
         }
 

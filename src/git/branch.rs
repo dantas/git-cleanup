@@ -31,11 +31,11 @@ impl<'a> Branch<'a> {
                 branch: Branch::Detached,
                 is_current: true,
             },
-            ["*", &ref branch_name, _, &ref maybe_origin_branch, ..] => ParseBranchResult {
+            ["*", branch_name, _, maybe_origin_branch, ..] => ParseBranchResult {
                 branch: Branch::from_components(branch_name, maybe_origin_branch),
                 is_current: true,
             },
-            [&ref branch_name, _, &ref maybe_origin_branch, ..] if branch_name != "*" => {
+            [branch_name, _, maybe_origin_branch, ..] if *branch_name != "*" => {
                 ParseBranchResult {
                     branch: Branch::from_components(branch_name, maybe_origin_branch),
                     is_current: false,
