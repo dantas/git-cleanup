@@ -5,6 +5,13 @@ use crate::execute;
 use crate::git;
 
 #[test]
+fn check_git_is_available() -> Result<(),Box<dyn std::error::Error>> {
+    let current_dir = env::current_dir()?;
+    execute::execute(current_dir, "git", ["--version"])?;
+    Ok(())
+} 
+
+#[test]
 fn test_query_repository() -> Result<(), Box<dyn std::error::Error>> {
     let root = TempDir::new()?;
     let remote = root.join("remote");
