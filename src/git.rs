@@ -20,6 +20,6 @@ pub fn query(path: impl AsRef<std::path::Path>) -> Result<GitOutput, ExecuteErro
 }
 
 pub fn repository_from(output: &GitOutput) -> Result<Repository, GitError> {
-    let repository = Repository::from_vv_stdout(&output.0)?;
+    let repository = Repository::from_vv_output(&output.0)?;
     Ok(repository)
 }

@@ -10,7 +10,7 @@ pub struct Repository<'a> {
 }
 
 impl<'a> Repository<'a> {
-    pub(super) fn from_vv_stdout(command_stdout: &'a str) -> Result<Self, GitError> {
+    pub(super) fn from_vv_output(command_stdout: &'a str) -> Result<Self, GitError> {
         let mut branches = HashSet::new();
         let mut current_branch = None;
 
@@ -36,7 +36,7 @@ impl<'a> Repository<'a> {
 
 #[test]
 fn test_one_branch() {
-    let sut = Repository::from_vv_stdout("* main 73b4084 [origin/main] commit message").unwrap();
+    let sut = Repository::from_vv_output("* main 73b4084 [origin/main] commit message").unwrap();
 
     let expected = repository! {
         *tracked_branch { "main", remote_branch("main", "origin") }
@@ -47,7 +47,7 @@ fn test_one_branch() {
 
 #[test]
 fn test_multiple_branches() {
-    let sut = Repository::from_vv_stdout(
+    let sut = Repository::from_vv_output(
         "\
         * main 73b4084 [origin/main] commit message\n\
         develop 73b4084 [origin/develop] commit message\
@@ -65,7 +65,7 @@ fn test_multiple_branches() {
 
 #[test]
 fn test_local_branch() {
-    let sut = Repository::from_vv_stdout(
+    let sut = Repository::from_vv_output(
         "\
         * main 73b4084 [origin/main] commit message\n\
         local 73b4084 commit message\
@@ -83,7 +83,7 @@ fn test_local_branch() {
 
 #[test]
 fn test_dettached_branch() {
-    let sut = Repository::from_vv_stdout(
+    let sut = Repository::from_vv_output(
         "\
         * (HEAD detached at 1f02cc2) 1f02cc2 Initial commit\n\
         local 73b4084 commit message\
