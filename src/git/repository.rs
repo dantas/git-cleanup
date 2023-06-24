@@ -116,7 +116,7 @@ macro_rules! repository {
                 );
             )*
 
-            Repository {
+            crate::git::Repository {
                 current_branch,
                 branches,
             }
@@ -137,7 +137,7 @@ macro_rules! repository {
                 );
             )*
 
-            Repository {
+            crate::git::Repository {
                 current_branch,
                 branches,
             }
