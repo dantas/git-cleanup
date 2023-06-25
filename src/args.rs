@@ -7,7 +7,7 @@ impl VecArgs {
         VecArgs(Vec::from_iter(env::args().skip(1)))
     }
 
-    pub fn vec_str(&self) -> Vec<&str> {
+    pub fn to_vec_str(&self) -> Vec<&str> {
         Vec::from_iter(self.0.iter().map(|s| s.as_str()))
     }
 }
