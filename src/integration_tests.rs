@@ -2,6 +2,7 @@
 
 use crate::commands;
 use crate::execute;
+use crate::git::GitQuery;
 use crate::git;
 
 #[test]
@@ -40,8 +41,8 @@ fn test_query_repository() -> Result<(), Box<dyn std::error::Error>> {
             ("git", "checkout", "develop")
     };
 
-    let git_query = git::query_git(&local)?;
-    let sut = git::repository_from(&git_query)?;
+    let git_query = GitQuery::query(&local)?;
+    let sut = git_query.to_repository()?;
 
     let expected = git::repository! {
         *tracked_branch { "develop", remote_branch("develop", "origin") },
@@ -87,12 +88,13 @@ fn test_clean() -> Result<(), Box<dyn std::error::Error>> {
             ("git", "checkout", "-b", "local_checkout")
     };
 
-    let git_query = git::query_git(&local)?;
-    let repository = git::repository_from(&git_query)?;
+    let git_query = GitQuery::query(&local)?;
+    let repository = git_query.to_repository()?;
+
     commands::clean(&local, repository, &[]);
 
-    let git_query = git::query_git(&local)?;
-    let sut = git::repository_from(&git_query)?;
+    let git_query = GitQuery::query(&local)?;
+    let sut = git_query.to_repository()?;
 
     let expected = git::repository! {
         *local_branch("local_checkout"),
