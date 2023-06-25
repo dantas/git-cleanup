@@ -7,8 +7,8 @@ mod git;
 mod integration_tests;
 
 use args::VecArgs;
-use std::env;
 use git::GitQuery;
+use std::env;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let path = env::current_dir()?;
