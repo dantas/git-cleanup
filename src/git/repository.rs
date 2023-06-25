@@ -106,15 +106,10 @@ macro_rules! repository {
         {
             let current_branch = $crate::git::make_branch!($type $args);
 
-            let mut branches = std::collections::HashSet::new();
-
-            branches.insert(current_branch.clone());
-
-            $(
-                branches.insert(
-                    $crate::git::make_branch!{ $rest_type $rest_args }
-                );
-            )*
+            let branches = std::collections::HashSet::from([
+                current_branch.clone(),
+                $($crate::git::make_branch!{ $rest_type $rest_args }),*
+            ]);
 
             crate::git::Repository {
                 current_branch,
@@ -127,15 +122,10 @@ macro_rules! repository {
         {
             let current_branch = $crate::git::make_branch!($type);
 
-            let mut branches = std::collections::HashSet::new();
-
-            branches.insert(current_branch.clone());
-
-            $(
-                branches.insert(
-                    $crate::git::make_branch!{ $rest_type $rest_args }
-                );
-            )*
+            let branches = std::collections::HashSet::from([
+                current_branch.clone(),
+                $($crate::git::make_branch!{ $rest_type $rest_args }),*
+            ]);
 
             crate::git::Repository {
                 current_branch,
