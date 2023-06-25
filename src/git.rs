@@ -14,12 +14,14 @@ use crate::execute;
 
 pub struct GitQuery(String);
 
-pub fn query_git(path: impl AsRef<std::path::Path>) -> Result<GitQuery, GitError> {
-    let output = execute::execute(&path, "git", ["branch", "-vv"])?;
-    Ok(GitQuery(output))
-}
+impl GitQuery {
+    pub fn query(path: impl AsRef<std::path::Path>) -> Result<GitQuery, GitError> {
+        let output = execute::execute(&path, "git", ["branch", "-vv"])?;
+        Ok(GitQuery(output))
+    }
 
-pub fn parse(query: &GitQuery) -> Result<Repository, GitError> {
-    let repository = Repository::from_vv_output(&query.0)?;
-    Ok(repository)
+    pub fn to_repository(&self) -> Result<Repository, GitError> {
+        let repository = Repository::from_vv_output(&self.0)?;
+        Ok(repository)
+    }
 }
