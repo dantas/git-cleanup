@@ -62,7 +62,7 @@ fn parse_mode(args: &[&str]) -> Option<Mode> {
         ["--all"] => Some(Mode::All),
         ["--tracked"] => Some(Mode::Tracked),
         ["--local"] => Some(Mode::Local),
-        [] => Some(Mode::Local), // default option if no arg is provided
+        [] => Some(Mode::All), // default option if no arg is provided
         _ => None,
     }
 }
