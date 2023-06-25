@@ -1,4 +1,4 @@
-use crate::git::GitError;
+use crate::git::GitParseError;
 use crate::git::RemoteBranch;
 use regex::Regex;
 
@@ -23,7 +23,7 @@ pub(super) struct ParseBranchResult<'a> {
 }
 
 impl<'a> Branch<'a> {
-    pub(super) fn from_vv_line(line: &'a str) -> Result<ParseBranchResult<'a>, GitError> {
+    pub(super) fn from_vv_line(line: &'a str) -> Result<ParseBranchResult<'a>, GitParseError> {
         let components = split_components(line)?;
 
         let branch = match components.as_slice() {
@@ -40,7 +40,7 @@ impl<'a> Branch<'a> {
                 is_current: false,
             },
             _ => {
-                return Err(GitError::BranchPattern {
+                return Err(GitParseError::BranchPattern {
                     line: line.to_string(),
                 })
             }
@@ -62,7 +62,7 @@ impl<'a> Branch<'a> {
     }
 }
 
-fn split_components(line: &str) -> Result<Vec<&str>, GitError> {
+fn split_components(line: &str) -> Result<Vec<&str>, GitParseError> {
     let regex = Regex::new(r"(\[.*\])+|(\S)+")?;
 
     let captures_iter = regex

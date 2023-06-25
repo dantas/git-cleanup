@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use crate::git::Branch;
-use crate::git::GitError;
+use crate::git::GitParseError;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Repository<'a> {
@@ -10,7 +10,7 @@ pub struct Repository<'a> {
 }
 
 impl<'a> Repository<'a> {
-    pub(super) fn from_vv_output(command_stdout: &'a str) -> Result<Self, GitError> {
+    pub(super) fn from_vv_output(command_stdout: &'a str) -> Result<Self, GitParseError> {
         let mut branches = HashSet::new();
         let mut current_branch = None;
 
@@ -29,7 +29,7 @@ impl<'a> Repository<'a> {
                 current_branch,
                 branches,
             }),
-            None => Err(GitError::CurrentBranch),
+            None => Err(GitParseError::CurrentBranch),
         }
     }
 }

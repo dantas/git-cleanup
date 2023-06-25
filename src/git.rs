@@ -1,5 +1,5 @@
 mod error;
-pub use error::GitError;
+pub use error::*;
 
 mod repository;
 pub use repository::*;
@@ -10,11 +10,11 @@ pub use remote_branch::*;
 mod branch;
 pub use branch::*;
 
-use crate::execute::{self, ExecuteError};
+use crate::execute;
 
 pub struct GitQuery(String);
 
-pub fn query_git(path: impl AsRef<std::path::Path>) -> Result<GitQuery, ExecuteError> {
+pub fn query_git(path: impl AsRef<std::path::Path>) -> Result<GitQuery, GitError> {
     let output = execute::execute(&path, "git", ["branch", "-vv"])?;
     Ok(GitQuery(output))
 }
