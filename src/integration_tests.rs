@@ -5,11 +5,11 @@ use crate::execute;
 use crate::git;
 
 #[test]
-fn check_git_is_available() -> Result<(),Box<dyn std::error::Error>> {
+fn check_git_is_available() -> Result<(), Box<dyn std::error::Error>> {
     let current_dir = env::current_dir()?;
     execute::execute(current_dir, "git", ["--version"])?;
     Ok(())
-} 
+}
 
 #[test]
 fn test_query_repository() -> Result<(), Box<dyn std::error::Error>> {
@@ -40,8 +40,8 @@ fn test_query_repository() -> Result<(), Box<dyn std::error::Error>> {
             ("git", "checkout", "develop")
     };
 
-    let git_output = git::query(&local)?;
-    let sut = git::repository_from(&git_output)?;
+    let git_query = git::query_git(&local)?;
+    let sut = git::repository_from(&git_query)?;
 
     let expected = git::repository! {
         *tracked_branch { "develop", remote_branch("develop", "origin") },
@@ -87,12 +87,12 @@ fn test_clean() -> Result<(), Box<dyn std::error::Error>> {
             ("git", "checkout", "-b", "local_checkout")
     };
 
-    let git_output = git::query(&local)?;
-    let repository = git::repository_from(&git_output)?;
+    let git_query = git::query_git(&local)?;
+    let repository = git::repository_from(&git_query)?;
     commands::clean(&local, repository, &[]);
 
-    let git_output = git::query(&local)?;
-    let sut = git::repository_from(&git_output)?;
+    let git_query = git::query_git(&local)?;
+    let sut = git::repository_from(&git_query)?;
 
     let expected = git::repository! {
         *local_branch("local_checkout"),
