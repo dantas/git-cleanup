@@ -3,7 +3,7 @@ use crate::git::Branch;
 use crate::git::Repository;
 use std::io;
 
-pub fn clean<P: AsRef<std::path::Path>>(path: P, repository: Repository, args: &[&str]) {
+pub fn clean<P: AsRef<std::path::Path>>(path: &P, repository: Repository, args: &[&str]) {
     if args == ["--help"] {
         print_clean_help();
         return;
@@ -48,12 +48,12 @@ fn skip_branch(branch: &Branch, branch_name: &str, repository: &Repository) -> b
     skip
 }
 
-fn delete_branch<P: AsRef<std::path::Path>>(path: P, branch_name: &str, mode: Mode) -> bool {
+fn delete_branch<P: AsRef<std::path::Path>>(path: &P, branch_name: &str, mode: Mode) -> bool {
     if mode == Mode::Step && !notify_step(branch_name) {
         return false;
     }
 
-    let result = execute::execute(&path, "git", ["branch", "-d", branch_name]);
+    let result = execute::execute(&path, &"git", &["branch", "-d", branch_name]);
 
     if result.is_err() {
         println!(

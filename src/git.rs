@@ -15,8 +15,8 @@ use crate::execute;
 pub struct GitQuery(String);
 
 impl GitQuery {
-    pub fn query(path: impl AsRef<std::path::Path>) -> Result<GitQuery, GitError> {
-        let output = execute::execute(&path, "git", ["branch", "-vv"])?;
+    pub fn query(path: &impl AsRef<std::path::Path>) -> Result<GitQuery, GitError> {
+        let output = execute::execute(path, &"git", &["branch", "-vv"])?;
         Ok(GitQuery(output))
     }
 

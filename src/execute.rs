@@ -2,7 +2,7 @@ use std::process::Command;
 use std::process::ExitStatus;
 use thiserror::Error;
 
-pub fn execute<P, A, S>(path: P, command: S, args: A) -> Result<String, ExecuteError>
+pub fn execute<P, A, S>(path: &P, command: &S, args: &A) -> Result<String, ExecuteError>
 where
     P: AsRef<std::path::Path>,
     A: AsRef<[S]> + IntoIterator<Item = S>,
@@ -10,7 +10,7 @@ where
 {
     let mut command = Command::new(command);
 
-    command.current_dir(path).args(args);
+    command.current_dir(path).args(args.as_ref());
 
     let output = command.output()?;
 
@@ -55,7 +55,7 @@ pub enum ExecuteError {
 #[allow(unused_macros)]
 macro_rules! sequence_execute {
     ( $path:ident : ($command:literal, $($arg:expr),*) ) => {
-        $crate::execute::execute(&$path, &$command, [$(&$arg),*])?;
+        $crate::execute::execute(&$path, &$command, &[$($arg),*])?;
     };
 
     ( $path:ident : $($command_and_args:tt),+ ) => {
