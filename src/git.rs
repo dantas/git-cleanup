@@ -12,14 +12,14 @@ pub use branch::*;
 
 use crate::execute::{self, ExecuteError};
 
-pub struct GitOutput(String);
+pub struct GitQuery(String);
 
-pub fn query(path: impl AsRef<std::path::Path>) -> Result<GitOutput, ExecuteError> {
+pub fn query_git(path: impl AsRef<std::path::Path>) -> Result<GitQuery, ExecuteError> {
     let output = execute::execute(&path, "git", ["branch", "-vv"])?;
-    Ok(GitOutput(output))
+    Ok(GitQuery(output))
 }
 
-pub fn repository_from(output: &GitOutput) -> Result<Repository, GitError> {
-    let repository = Repository::from_vv_output(&output.0)?;
+pub fn repository_from(query: &GitQuery) -> Result<Repository, GitError> {
+    let repository = Repository::from_vv_output(&query.0)?;
     Ok(repository)
 }

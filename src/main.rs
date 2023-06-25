@@ -12,7 +12,7 @@ mod integration_tests;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let path = env::current_dir()?;
 
-    let git_output = git::query(&path)?;
+    let git_output = git::query_git(&path)?;
     let repository = git::repository_from(&git_output)?;
 
     match VecArgs::new().as_vec_str().as_slice() {
