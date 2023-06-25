@@ -15,7 +15,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let git_output = git::query_git(&path)?;
     let repository = git::repository_from(&git_output)?;
 
-    match VecArgs::new().as_vec_str().as_slice() {
+    match VecArgs::new().vec_str().as_slice() {
         ["list", args @ ..] => commands::list(&repository, args),
         ["clean", args @ ..] => commands::clean(&path, repository, args),
         ["--help"] => print_help(),
