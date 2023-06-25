@@ -13,7 +13,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let path = env::current_dir()?;
 
     let git_query = git::query_git(&path)?;
-    let repository = git::repository_from(&git_query)?;
+    let repository = git::parse(&git_query)?;
 
     match VecArgs::new().to_vec_str().as_slice() {
         ["list", args @ ..] => commands::list(&repository, args),

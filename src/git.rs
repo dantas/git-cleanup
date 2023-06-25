@@ -19,7 +19,7 @@ pub fn query_git(path: impl AsRef<std::path::Path>) -> Result<GitQuery, GitError
     Ok(GitQuery(output))
 }
 
-pub fn repository_from(query: &GitQuery) -> Result<Repository, GitError> {
+pub fn parse(query: &GitQuery) -> Result<Repository, GitError> {
     let repository = Repository::from_vv_output(&query.0)?;
     Ok(repository)
 }
