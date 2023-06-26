@@ -8,13 +8,13 @@ It is a small command line utilitary that deletes local branches that are not pr
 
 - **--help**: Show this help message
 - **list**: List branches, grouping them by tracked and local
-  - **--help**:     Show list command help message
+  - **--help**:     Show list command options
   - **--all**:       List all branches (default option)
   - **--tracked**:  List all tracked branches
   - **--local**:    List local branches
 
-- **clean**: Delete local branches
-  - **--help**: Show clean command help message
+- **clean**: Delete local only branches
+  - **--help**: Show clean command options
   - **--step**: Require user confirmation before deleting each branch
 
 # Disclaimer
