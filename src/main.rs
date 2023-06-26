@@ -32,6 +32,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 fn print_help() {
     println!("Commands available:");
     println!("    list: List branches");
-    println!("    clean: Clean local branches that are not on origin");
-    println!("Execute each comand with --help for available option");
+    println!("    clean: Delete local branches that are not on any origin");
+    println!("Execute each comand with --help for available options");
 }
