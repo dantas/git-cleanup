@@ -1,5 +1,4 @@
 use crate::execute;
-use crate::git::Branch;
 use crate::git::Repository;
 use std::io;
 
@@ -9,7 +8,7 @@ pub fn clean<P: AsRef<std::path::Path>>(path: &P, repository: Repository, args: 
         return;
     }
 
-    let mode = match parse_mode(args) {
+    let arg = match args::parse(args) {
         Some(mode) => mode,
         None => {
             print_clean_help();
@@ -17,19 +16,18 @@ pub fn clean<P: AsRef<std::path::Path>>(path: &P, repository: Repository, args: 
         }
     };
 
-    for branch in &repository.branches {
-        match branch {
-            Branch::Local { name: branch_name } => {
-                if skip_branch(branch, branch_name, &repository) {
-                    continue;
-                }
+    for action in actions::actions(&repository) {
+        match action {
+            actions::Action::Skip { branch_name } => {
+                println!("Skipping branch {}", branch_name);
+            }
 
-                if !delete_branch(&path, branch_name, mode) {
+            actions::Action::Delete { branch_name } => {
+                if !delete_branch(path, branch_name, arg) {
                     break;
                 }
             }
-            _ => continue,
-        };
+        }
     }
 }
 
@@ -38,18 +36,14 @@ pub fn print_clean_help() {
     println!("    -step: Ask for user confirmation before deleting each branch");
 }
 
-fn skip_branch(branch: &Branch, branch_name: &str, repository: &Repository) -> bool {
-    let skip = branch == &repository.current_branch;
+type Continue = bool;
 
-    if skip {
-        println!("Skipping branch {}", branch_name);
-    }
-
-    skip
-}
-
-fn delete_branch<P: AsRef<std::path::Path>>(path: &P, branch_name: &str, mode: Mode) -> bool {
-    if mode == Mode::Step && !notify_step(branch_name) {
+fn delete_branch<P: AsRef<std::path::Path>>(
+    path: &P,
+    branch_name: &str,
+    arg: args::Arg,
+) -> Continue {
+    if arg == args::Arg::Step && !notify_step(branch_name) {
         return false;
     }
 
@@ -65,7 +59,7 @@ fn delete_branch<P: AsRef<std::path::Path>>(path: &P, branch_name: &str, mode: M
     result.is_ok()
 }
 
-fn notify_step(branch_name: &str) -> bool {
+fn notify_step(branch_name: &str) -> Continue {
     println!(
         "About to delete branch {}, type y and press enter to continue",
         branch_name
@@ -87,16 +81,94 @@ fn notify_step(branch_name: &str) -> bool {
     true
 }
 
-#[derive(Clone, Copy, PartialEq, Eq)]
-enum Mode {
-    Step,
-    NoMode,
+mod args {
+    #[derive(Clone, Copy, PartialEq, Eq, Debug)]
+    pub enum Arg {
+        Step,
+        NoMode,
+    }
+
+    pub fn parse(args: &[&str]) -> Option<Arg> {
+        match args {
+            ["--step"] => Some(Arg::Step),
+            [] => Some(Arg::NoMode),
+            _ => None,
+        }
+    }
+
+    #[test]
+    fn test_step_arg() {
+        let sut = parse(&["--step"]);
+        let expected = Some(Arg::Step);
+        assert_eq!(sut, expected);
+    }
+
+    #[test]
+    fn test_default_arg() {
+        let sut = parse(&[]);
+        let expected = Some(Arg::NoMode);
+        assert_eq!(sut, expected);
+    }
+
+    #[test]
+    fn test_invalid_arg() {
+        let sut = parse(&["--invalid"]);
+        let expected = None;
+        assert_eq!(sut, expected);
+    }
 }
 
-fn parse_mode(args: &[&str]) -> Option<Mode> {
-    match args {
-        ["--step"] => Some(Mode::Step),
-        [] => Some(Mode::NoMode),
-        _ => None,
+mod actions {
+    use crate::git::Branch;
+    use crate::git::Repository;
+    use std::iter::Iterator;
+
+    #[derive(Debug, PartialEq, Eq, Hash)]
+    pub enum Action<'a> {
+        Skip { branch_name: &'a str },
+        Delete { branch_name: &'a str },
+    }
+
+    pub fn actions<'a>(repository: &'a Repository) -> impl Iterator<Item = Action<'a>> {
+        repository
+            .branches
+            .iter()
+            .filter_map(|branch| match branch {
+                Branch::Local { name } => {
+                    let item = if *branch == repository.current_branch {
+                        Action::Skip { branch_name: name }
+                    } else {
+                        Action::Delete { branch_name: name }
+                    };
+
+                    Some(item)
+                }
+                Branch::Tracked { .. } => None,
+                Branch::Detached => None,
+            })
+    }
+
+    #[test]
+    fn test_actions() {
+        use std::collections::HashSet;
+
+        let repository = crate::git::repository! {
+            *local_branch("develop"),
+            tracked_branch { "main", remote_branch("main", "origin") },
+            local_branch("feature"),
+        };
+
+        let sut = HashSet::from_iter(actions(&repository));
+
+        let expected = HashSet::from([
+            Action::Skip {
+                branch_name: "develop",
+            },
+            Action::Delete {
+                branch_name: "feature",
+            },
+        ]);
+
+        assert_eq!(sut, expected);
     }
 }
