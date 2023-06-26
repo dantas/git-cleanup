@@ -28,9 +28,9 @@ pub fn list(repository: &Repository, args: &[&str]) {
 
 pub fn print_list_help() {
     println!("list options:");
-    println!("    --all:      List all branches");
+    println!("    --all:      List all branches (default option)");
     println!("    --tracked:  List all tracked branches");
-    println!("    --local:    List local branches (default option)");
+    println!("    --local:    List local branches");
 }
 
 fn print_local(repository: &Repository) {
