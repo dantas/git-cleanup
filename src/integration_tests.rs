@@ -2,8 +2,8 @@
 
 use crate::commands;
 use crate::execute;
-use crate::git::GitQuery;
 use crate::git;
+use crate::git::GitQuery;
 
 #[test]
 fn check_git_is_available() -> Result<(), Box<dyn std::error::Error>> {
