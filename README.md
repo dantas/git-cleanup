@@ -2,9 +2,7 @@
 
 It is a small command line utilitary that deletes local branches that are not present in any origin.  
 
-## Help
-
-### Available Commands
+# Available Commands
 
 - **--help**: Show this help message
 - **list**: List branches, grouping them by tracked and local
