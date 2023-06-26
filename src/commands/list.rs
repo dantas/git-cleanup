@@ -8,7 +8,7 @@ pub fn list(repository: &Repository, args: &[&str]) {
         return;
     }
 
-    let mode = match parse_mode(args) {
+    let args = match args::parse(args) {
         Some(mode) => mode,
         None => {
             print_list_help();
@@ -16,10 +16,10 @@ pub fn list(repository: &Repository, args: &[&str]) {
         }
     };
 
-    match mode {
-        Mode::Local => print_local(repository),
-        Mode::Tracked => print_tracked(repository),
-        Mode::All => {
+    match args {
+        args::Arg::Local => print_local(repository),
+        args::Arg::Tracked => print_tracked(repository),
+        args::Arg::All => {
             print_local(repository);
             print_tracked(repository);
         }
@@ -57,23 +57,6 @@ fn print_branches<F: Fn(&&Branch) -> bool>(repository: &Repository, message: &st
     }
 }
 
-fn parse_mode(args: &[&str]) -> Option<Mode> {
-    match args {
-        ["--all"] => Some(Mode::All),
-        ["--tracked"] => Some(Mode::Tracked),
-        ["--local"] => Some(Mode::Local),
-        [] => Some(Mode::All), // default option if no arg is provided
-        _ => None,
-    }
-}
-
-#[derive(Clone, Copy, PartialEq, Eq)]
-enum Mode {
-    Local,
-    Tracked,
-    All,
-}
-
 impl<'a> Display for Branch<'a> {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -83,5 +66,59 @@ impl<'a> Display for Branch<'a> {
             Branch::Local { name } => write!(formatter, "{}", name),
             Branch::Detached => write!(formatter, "Detached"),
         }
+    }
+}
+
+mod args {
+    #[derive(Clone, Copy, PartialEq, Eq, Debug)]
+    pub enum Arg {
+        Local,
+        Tracked,
+        All,
+    }
+
+    pub fn parse(args: &[&str]) -> Option<Arg> {
+        match args {
+            ["--all"] => Some(Arg::All),
+            ["--tracked"] => Some(Arg::Tracked),
+            ["--local"] => Some(Arg::Local),
+            [] => Some(Arg::All), // default option if no arg is provided
+            _ => None,
+        }
+    }
+
+    #[test]
+    fn test_local_arg() {
+        let sut = parse(&["--local"]);
+        let expected = Some(Arg::Local);
+        assert_eq!(sut, expected);
+    }
+
+    #[test]
+    fn test_tracked_arg() {
+        let sut = parse(&["--tracked"]);
+        let expected = Some(Arg::Tracked);
+        assert_eq!(sut, expected);
+    }
+
+    #[test]
+    fn test_all_arg() {
+        let sut = parse(&["--all"]);
+        let expected = Some(Arg::All);
+        assert_eq!(sut, expected);
+    }
+
+    #[test]
+    fn test_default_arg() {
+        let sut = parse(&[]);
+        let expected = Some(Arg::All);
+        assert_eq!(sut, expected);
+    }
+
+    #[test]
+    fn test_invalid_arg() {
+        let sut = parse(&["invalid"]);
+        let expected = None;
+        assert_eq!(sut, expected);
     }
 }
