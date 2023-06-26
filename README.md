@@ -17,7 +17,7 @@ It is a small command line utilitary that deletes local branches that are not pr
 
 # Disclaimer
 
-Be careful when using this program. It may contains bugs that can delete important work.  
+Be careful when using this program. It may contains bugs that can lead to data loss.  
 Use it at your own peril.
 
 # Developer notes
