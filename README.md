@@ -15,6 +15,11 @@ It is a small command line utilitary that deletes local branches that are not pr
   - **--help**: Show clean command options
   - **--step**: Require user confirmation before deleting each branch
 
+# Development notes
+
+I'm not using the lib+bin approach. Integration tests are on their own module, inside the bin crate, behind a feature.  
+Run cargo test with **-F integration** to execute integration tests. 
+
 # Disclaimer
 
 Be careful when using this program. It may contains bugs that can delete important work.  
