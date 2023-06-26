@@ -10,7 +10,7 @@ It is a small command line utilitary that deletes local branches that are not pr
 - **list**: List branches, grouping them by tracked and local
   - **--help**:     Show list command help message
   - **--all**:       List all branches (default option)
-  - **--tracked**: List all tracked branches
+  - **--tracked**:  List all tracked branches
   - **--local**:    List local branches
 
 - **clean**: Delete local branches
