@@ -4,7 +4,7 @@ use regex::Regex;
 
 #[derive(Debug, Clone, PartialEq, Hash, Eq)]
 pub enum Branch<'a> {
-    Tracked {
+    Tracking {
         name: &'a str,
         remote: RemoteBranch<'a>,
     },
@@ -53,7 +53,7 @@ impl<'a> Branch<'a> {
         let remote_branch = RemoteBranch::try_from_vv_column(maybe_origin_branch);
 
         match remote_branch {
-            Some(remote) => Branch::Tracked {
+            Some(remote) => Branch::Tracking {
                 name: branch_name,
                 remote,
             },
@@ -88,12 +88,12 @@ fn test_parse_detached_head() {
 }
 
 #[test]
-fn test_parse_currently_checked_out_tracked_branch() {
+fn test_parse_currently_checked_out_tracking_branch() {
     let sut =
         Branch::from_vv_line("*  main  1f02cc2 [origin/main: ahead by 2] Initial commit").unwrap();
 
     let expected = ParseBranchResult {
-        branch: tracked_branch! {"main", remote_branch("main", "origin")},
+        branch: tracking! {"main", remote("main", "origin")},
         is_current: true,
     };
 
@@ -105,7 +105,7 @@ fn test_parse_local_branch() {
     let sut = Branch::from_vv_line("develop    1f02cc2 Initial commit").unwrap();
 
     let expected = ParseBranchResult {
-        branch: local_branch!("develop"),
+        branch: local!("develop"),
         is_current: false,
     };
 
@@ -125,22 +125,22 @@ fn test_parse_invalid_lines() {
 
 #[cfg(test)]
 #[allow(unused_macros)]
-macro_rules! tracked_branch {
-    ($name:literal, remote_branch ( $remote_name:literal, $remote_origin: literal ) ) => {
-        $crate::git::Branch::Tracked {
+macro_rules! tracking {
+    ($name:literal, remote ( $remote_name:literal, $remote_origin: literal ) ) => {
+        $crate::git::Branch::Tracking {
             name: $name,
-            remote: crate::git::remote_branch!($remote_name, $remote_origin),
+            remote: crate::git::remote!($remote_name, $remote_origin),
         }
     };
 }
 
 #[cfg(test)]
 #[allow(unused_imports)]
-pub(crate) use tracked_branch;
+pub(crate) use tracking;
 
 #[cfg(test)]
 #[allow(unused_macros)]
-macro_rules! local_branch {
+macro_rules! local {
     ($name:literal) => {
         $crate::git::Branch::Local { name: $name }
     };
@@ -148,24 +148,24 @@ macro_rules! local_branch {
 
 #[cfg(test)]
 #[allow(unused_imports)]
-pub(crate) use local_branch;
+pub(crate) use local;
 
 #[cfg(test)]
 #[allow(unused_macros)]
-macro_rules! make_branch {
+macro_rules! branch {
     ( detached ) => {
         $crate::git::Branch::Detached
     };
 
     ( local_branch $args:tt ) => {
-        $crate::git::local_branch!$args
+        $crate::git::local!$args
     };
 
-    ( tracked_branch $args:tt ) => {
-        $crate::git::tracked_branch!$args
+    ( tracking $args:tt ) => {
+        $crate::git::tracking!$args
     };
 }
 
 #[cfg(test)]
 #[allow(unused_imports)]
-pub(crate) use make_branch;
+pub(crate) use branch;

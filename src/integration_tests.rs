@@ -45,8 +45,8 @@ fn test_query_repository() -> Result<(), Box<dyn std::error::Error>> {
     let sut = git_query.to_repository()?;
 
     let expected = git::repository! {
-        *tracked_branch { "develop", remote_branch("develop", "origin") },
-        tracked_branch { "main", remote_branch("main", "origin") }
+        *tracking { "develop", remote("develop", "origin") },
+        tracking { "main", remote("main", "origin") }
     };
 
     assert_eq!(sut, expected);
@@ -98,8 +98,8 @@ fn test_clean() -> Result<(), Box<dyn std::error::Error>> {
 
     let expected = git::repository! {
         *local_branch("local_checkout"),
-        tracked_branch { "develop", remote_branch("develop", "origin") },
-        tracked_branch { "main", remote_branch("main", "origin") },
+        tracking { "develop", remote("develop", "origin") },
+        tracking { "main", remote("main", "origin") },
     };
 
     assert_eq!(sut, expected);

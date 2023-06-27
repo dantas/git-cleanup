@@ -41,7 +41,7 @@ fn print_local(repository: &Repository) {
 
 fn print_tracked(repository: &Repository) {
     print_branches(repository, "Tracked branches", |b| {
-        matches!(b, Branch::Tracked { .. })
+        matches!(b, Branch::Tracking { .. })
     })
 }
 
@@ -60,8 +60,12 @@ fn print_branches<F: Fn(&&Branch) -> bool>(repository: &Repository, message: &st
 impl<'a> Display for Branch<'a> {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Branch::Tracked { name, remote } => {
-                write!(formatter, "{} => {}/{}", name, remote.remote, remote.name)
+            Branch::Tracking { name, remote } => {
+                write!(
+                    formatter,
+                    "{} => {}/{}",
+                    name, remote.remote_name, remote.branch_name
+                )
             }
             Branch::Local { name } => write!(formatter, "{}", name),
             Branch::Detached => write!(formatter, "Detached"),

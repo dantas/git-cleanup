@@ -143,7 +143,7 @@ mod actions {
 
                     Some(item)
                 }
-                Branch::Tracked { .. } => None,
+                Branch::Tracking { .. } => None,
                 Branch::Detached => None,
             })
     }
@@ -154,7 +154,7 @@ mod actions {
 
         let repository = crate::git::repository! {
             *local_branch("develop"),
-            tracked_branch { "main", remote_branch("main", "origin") },
+            tracking { "main", remote("main", "origin") },
             local_branch("feature"),
         };
 

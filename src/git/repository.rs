@@ -39,7 +39,7 @@ fn test_one_branch() {
     let sut = Repository::from_vv_output("* main 73b4084 [origin/main] commit message").unwrap();
 
     let expected = repository! {
-        *tracked_branch { "main", remote_branch("main", "origin") }
+        *tracking { "main", remote("main", "origin") }
     };
 
     assert_eq!(sut, expected);
@@ -56,8 +56,8 @@ fn test_multiple_branches() {
     .unwrap();
 
     let expected = repository! {
-        *tracked_branch { "main" , remote_branch("main", "origin") },
-        tracked_branch { "develop" , remote_branch("develop", "origin") },
+        *tracking { "main" , remote("main", "origin") },
+        tracking { "develop" , remote("develop", "origin") },
     };
 
     assert_eq!(sut, expected);
@@ -74,7 +74,7 @@ fn test_local_branch() {
     .unwrap();
 
     let expected = repository! {
-        *tracked_branch { "main", remote_branch("main", "origin") },
+        *tracking { "main", remote("main", "origin") },
         local_branch("local"),
     };
 
@@ -104,11 +104,11 @@ fn test_dettached_branch() {
 macro_rules! repository {
     ( * $type:ident $args:tt $( , $rest_type:ident $rest_args:tt )* $(,)? ) => {
         {
-            let current_branch = $crate::git::make_branch!($type $args);
+            let current_branch = $crate::git::branch!($type $args);
 
             let branches = std::collections::HashSet::from([
                 current_branch.clone(),
-                $($crate::git::make_branch!{ $rest_type $rest_args }),*
+                $($crate::git::branch!{ $rest_type $rest_args }),*
             ]);
 
             crate::git::Repository {
@@ -120,11 +120,11 @@ macro_rules! repository {
 
     ( * $type:ident $( , $rest_type:ident $rest_args:tt )* $(,)? ) => {
         {
-            let current_branch = $crate::git::make_branch!($type);
+            let current_branch = $crate::git::branch!($type);
 
             let branches = std::collections::HashSet::from([
                 current_branch.clone(),
-                $($crate::git::make_branch!{ $rest_type $rest_args }),*
+                $($crate::git::branch!{ $rest_type $rest_args }),*
             ]);
 
             crate::git::Repository {

@@ -1,7 +1,7 @@
 #[derive(Debug, Clone, PartialEq, Hash, Eq)]
 pub struct RemoteBranch<'a> {
-    pub name: &'a str,
-    pub remote: &'a str,
+    pub branch_name: &'a str,
+    pub remote_name: &'a str,
 }
 
 impl<'a> RemoteBranch<'a> {
@@ -25,8 +25,8 @@ impl<'a> RemoteBranch<'a> {
         };
 
         let remote_branch = RemoteBranch {
-            remote: &string[1..index_slash],
-            name: &string[index_slash + 1..index_ending],
+            remote_name: &string[1..index_slash],
+            branch_name: &string[index_slash + 1..index_ending],
         };
 
         Some(remote_branch)
@@ -35,13 +35,17 @@ impl<'a> RemoteBranch<'a> {
 
 impl<'a> std::fmt::Display for RemoteBranch<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Branch: {} - Origin: {}", self.name, self.remote)
+        write!(
+            f,
+            "Branch: {} - Origin: {}",
+            self.branch_name, self.remote_name
+        )
     }
 }
 
 #[test]
 fn test_remote_branch() {
-    let expected = remote_branch!("branch2", "origin");
+    let expected = remote!("branch2", "origin");
 
     if let Some(sut) = RemoteBranch::try_from_vv_column("[origin/branch2]") {
         assert_eq!(sut, expected)
@@ -52,7 +56,7 @@ fn test_remote_branch() {
 
 #[test]
 fn test_remote_branch_ahead_of_origin() {
-    let expected = remote_branch!("main", "origin");
+    let expected = remote!("main", "origin");
 
     if let Some(sut) = RemoteBranch::try_from_vv_column("[origin/main: ahead 1]") {
         assert_eq!(sut, expected)
@@ -78,15 +82,15 @@ fn test_parse_invalid_lines() {
 
 #[cfg(test)]
 #[allow(unused_macros)]
-macro_rules! remote_branch {
+macro_rules! remote {
     ($branch_name:literal, $remote_name:literal) => {
         $crate::git::RemoteBranch {
-            name: $branch_name,
-            remote: $remote_name,
+            branch_name: $branch_name,
+            remote_name: $remote_name,
         }
     };
 }
 
 #[cfg(test)]
 #[allow(unused_imports)]
-pub(crate) use remote_branch;
+pub(crate) use remote;
