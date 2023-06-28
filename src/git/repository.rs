@@ -1,42 +1,40 @@
 use std::collections::HashSet;
 
-use crate::git::Branch;
 use crate::git::GitParseError;
+use crate::git::Line;
+use crate::git::{Branch, Head};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Repository<'a> {
-    pub current_branch: Branch<'a>,
+    pub head: Head<'a>,
     pub branches: HashSet<Branch<'a>>,
 }
 
 impl<'a> Repository<'a> {
-    pub(super) fn from_vv_output(command_stdout: &'a str) -> Result<Self, GitParseError> {
+    pub(super) fn parse(command_stdout: &'a str) -> Result<Self, GitParseError> {
         let mut branches = HashSet::new();
-        let mut current_branch = None;
+        let mut head = None;
 
         for line in command_stdout.lines() {
-            let result = Branch::from_vv_line(line)?;
+            let line = Line::parse(line);
 
-            if result.is_current {
-                current_branch = Some(result.branch.clone())
+            if line.is_head() {
+                head = Some(Head::new(&line)?);
+            } else {
+                branches.insert(Branch::new(&line)?);
             }
-
-            branches.insert(result.branch);
         }
 
-        match current_branch {
-            Some(current_branch) => Ok(Repository {
-                current_branch,
-                branches,
-            }),
+        match head {
+            Some(head) => Ok(Repository { head, branches }),
             None => Err(GitParseError::CurrentBranch),
         }
     }
 }
 
 #[test]
-fn test_one_branch() {
-    let sut = Repository::from_vv_output("* main 73b4084 [origin/main] commit message").unwrap();
+fn one_branch() {
+    let sut = Repository::parse("* main 73b4084 [origin/main] commit message").unwrap();
 
     let expected = repository! {
         *tracking { "main", remote("main", "origin") }
@@ -47,7 +45,7 @@ fn test_one_branch() {
 
 #[test]
 fn test_multiple_branches() {
-    let sut = Repository::from_vv_output(
+    let sut = Repository::parse(
         "\
         * main 73b4084 [origin/main] commit message\n\
         develop 73b4084 [origin/develop] commit message\
@@ -65,7 +63,7 @@ fn test_multiple_branches() {
 
 #[test]
 fn test_local_branch() {
-    let sut = Repository::from_vv_output(
+    let sut = Repository::parse(
         "\
         * main 73b4084 [origin/main] commit message\n\
         local 73b4084 commit message\
@@ -75,7 +73,7 @@ fn test_local_branch() {
 
     let expected = repository! {
         *tracking { "main", remote("main", "origin") },
-        local_branch("local"),
+        local("local"),
     };
 
     assert_eq!(sut, expected);
@@ -83,7 +81,7 @@ fn test_local_branch() {
 
 #[test]
 fn test_dettached_branch() {
-    let sut = Repository::from_vv_output(
+    let sut = Repository::parse(
         "\
         * (HEAD detached at 1f02cc2) 1f02cc2 Initial commit\n\
         local 73b4084 commit message\
@@ -93,7 +91,7 @@ fn test_dettached_branch() {
 
     let expected = repository! {
         *detached,
-        local_branch("local"),
+        local("local"),
     };
 
     assert_eq!(sut, expected);
@@ -104,15 +102,14 @@ fn test_dettached_branch() {
 macro_rules! repository {
     ( * $type:ident $args:tt $( , $rest_type:ident $rest_args:tt )* $(,)? ) => {
         {
-            let current_branch = $crate::git::branch!($type $args);
+            let head = $crate::git::head!($type $args);
 
             let branches = std::collections::HashSet::from([
-                current_branch.clone(),
                 $($crate::git::branch!{ $rest_type $rest_args }),*
             ]);
 
             crate::git::Repository {
-                current_branch,
+                head,
                 branches,
             }
         }
@@ -120,15 +117,14 @@ macro_rules! repository {
 
     ( * $type:ident $( , $rest_type:ident $rest_args:tt )* $(,)? ) => {
         {
-            let current_branch = $crate::git::branch!($type);
+            let head = $crate::git::head!($type $args);
 
             let branches = std::collections::HashSet::from([
-                current_branch.clone(),
                 $($crate::git::branch!{ $rest_type $rest_args }),*
             ]);
 
             crate::git::Repository {
-                current_branch,
+                head,
                 branches,
             }
         }

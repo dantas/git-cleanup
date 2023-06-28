@@ -18,12 +18,6 @@ pub enum GitError {
 
 #[derive(Error, Debug)]
 pub enum GitParseError {
-    #[error("Error compiling regex")]
-    CompileRegex {
-        #[from]
-        source: regex::Error,
-    },
-
     #[error("Unrecognized pattern while parsing branch, {line}")]
     BranchPattern { line: String },
 

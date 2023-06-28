@@ -5,7 +5,7 @@ pub struct RemoteBranch<'a> {
 }
 
 impl<'a> RemoteBranch<'a> {
-    pub(super) fn try_from_vv_column(string: &'a str) -> Option<Self> {
+    pub(super) fn parse(string: &'a str) -> Option<Self> {
         let index_slash;
 
         if let Some(i) = string.find('/') {
@@ -47,7 +47,7 @@ impl<'a> std::fmt::Display for RemoteBranch<'a> {
 fn test_remote_branch() {
     let expected = remote!("branch2", "origin");
 
-    if let Some(sut) = RemoteBranch::try_from_vv_column("[origin/branch2]") {
+    if let Some(sut) = RemoteBranch::parse("[origin/branch2]") {
         assert_eq!(sut, expected)
     } else {
         panic!("try_from_vv_column didn't detect valid string");
@@ -58,7 +58,7 @@ fn test_remote_branch() {
 fn test_remote_branch_ahead_of_origin() {
     let expected = remote!("main", "origin");
 
-    if let Some(sut) = RemoteBranch::try_from_vv_column("[origin/main: ahead 1]") {
+    if let Some(sut) = RemoteBranch::parse("[origin/main: ahead 1]") {
         assert_eq!(sut, expected)
     } else {
         panic!("try_from_vv_column didn't detect valid string");
@@ -67,15 +67,15 @@ fn test_remote_branch_ahead_of_origin() {
 
 #[test]
 fn test_parse_invalid_lines() {
-    if RemoteBranch::try_from_vv_column("origin/branch2]") != None {
+    if RemoteBranch::parse("origin/branch2]") != None {
         panic!("try_from_vv_column interpreted missing [ as a valid remote branch");
     }
 
-    if RemoteBranch::try_from_vv_column("[origin/branch2") != None {
+    if RemoteBranch::parse("[origin/branch2") != None {
         panic!("try_from_vv_column interpreted missing ] as a valid remote branch");
     }
 
-    if RemoteBranch::try_from_vv_column("originbranch2]") != None {
+    if RemoteBranch::parse("originbranch2]") != None {
         panic!("try_from_vv_column interpreted missing / as a valid remote branch");
     }
 }

@@ -1,3 +1,9 @@
+mod line;
+use line::*;
+
+mod head;
+pub use head::*;
+
 mod error;
 pub use error::*;
 
@@ -21,7 +27,7 @@ impl GitQuery {
     }
 
     pub fn to_repository(&self) -> Result<Repository, GitError> {
-        let repository = Repository::from_vv_output(&self.0)?;
+        let repository = Repository::parse(&self.0)?;
         Ok(repository)
     }
 }

@@ -1,6 +1,9 @@
+use crate::git::line::Line;
 use crate::git::GitParseError;
 use crate::git::RemoteBranch;
-use regex::Regex;
+
+#[cfg(test)]
+use crate::git;
 
 #[derive(Debug, Clone, PartialEq, Hash, Eq)]
 pub enum Branch<'a> {
@@ -12,45 +15,22 @@ pub enum Branch<'a> {
     Local {
         name: &'a str,
     },
-
-    Detached,
-}
-
-#[derive(Debug, PartialEq)]
-pub(super) struct ParseBranchResult<'a> {
-    pub branch: Branch<'a>,
-    pub is_current: bool,
 }
 
 impl<'a> Branch<'a> {
-    pub(super) fn from_vv_line(line: &'a str) -> Result<ParseBranchResult<'a>, GitParseError> {
-        let components = split_components(line)?;
-
-        let branch = match components.as_slice() {
-            ["*", "(HEAD", ..] => ParseBranchResult {
-                branch: Branch::Detached,
-                is_current: true,
-            },
-            ["*", branch_name, _, maybe_origin_branch, ..] => ParseBranchResult {
-                branch: Branch::from_components(branch_name, maybe_origin_branch),
-                is_current: true,
-            },
-            [branch_name, _, maybe_origin_branch, ..] if *branch_name != "*" => ParseBranchResult {
-                branch: Branch::from_components(branch_name, maybe_origin_branch),
-                is_current: false,
-            },
-            _ => {
-                return Err(GitParseError::BranchPattern {
-                    line: line.to_string(),
-                })
+    pub(super) fn new(line: &Line<'a>) -> Result<Self, GitParseError> {
+        match line.components() {
+            [branch_name, _, maybe_origin_branch, ..] => {
+                Ok(Branch::from_components(branch_name, maybe_origin_branch))
             }
-        };
-
-        Ok(branch)
+            _ => Err(GitParseError::BranchPattern {
+                line: line.to_string(),
+            }),
+        }
     }
 
     fn from_components(branch_name: &'a str, maybe_origin_branch: &'a str) -> Self {
-        let remote_branch = RemoteBranch::try_from_vv_column(maybe_origin_branch);
+        let remote_branch = RemoteBranch::parse(maybe_origin_branch);
 
         match remote_branch {
             Some(remote) => Branch::Tracking {
@@ -62,65 +42,37 @@ impl<'a> Branch<'a> {
     }
 }
 
-fn split_components(line: &str) -> Result<Vec<&str>, GitParseError> {
-    let regex = Regex::new(r"(\[.*\])+|(\S)+")?;
-
-    let captures_iter = regex
-        .captures_iter(line)
-        .filter_map(|c| c.get(0))
-        .map(|m| m.as_str());
-
-    let vec = Vec::from_iter(captures_iter);
-
-    Ok(vec)
-}
-
 #[test]
-fn test_parse_detached_head() {
-    let sut = Branch::from_vv_line("* (HEAD detached at 1f02cc2) 1f02cc2 Initial commit").unwrap();
+fn tracking_branch() {
+    let line = Line::parse("*  main  1f02cc2 [origin/main: ahead by 2] Initial commit");
 
-    let expected = ParseBranchResult {
-        branch: Branch::Detached,
-        is_current: true,
-    };
+    let sut = Branch::new(&line).unwrap();
+
+    let expected = git::tracking! {"main", remote("main", "origin")};
 
     assert_eq!(sut, expected);
 }
 
 #[test]
-fn test_parse_currently_checked_out_tracking_branch() {
-    let sut =
-        Branch::from_vv_line("*  main  1f02cc2 [origin/main: ahead by 2] Initial commit").unwrap();
+fn local_branch() {
+    let line = Line::parse("develop    1f02cc2 Initial commit");
 
-    let expected = ParseBranchResult {
-        branch: tracking! {"main", remote("main", "origin")},
-        is_current: true,
-    };
+    let sut = Branch::new(&line).unwrap();
 
-    assert_eq!(sut, expected);
-}
-
-#[test]
-fn test_parse_local_branch() {
-    let sut = Branch::from_vv_line("develop    1f02cc2 Initial commit").unwrap();
-
-    let expected = ParseBranchResult {
-        branch: local!("develop"),
-        is_current: false,
-    };
+    let expected = git::local!("develop");
 
     assert_eq!(sut, expected);
 }
 
 #[test]
 fn test_parse_invalid_lines() {
-    assert!(Branch::from_vv_line(" ").is_err());
+    assert!(Branch::new(&Line::parse(" ")).is_err());
 
-    assert!(Branch::from_vv_line("first").is_err());
+    assert!(Branch::new(&Line::parse("first")).is_err());
 
-    assert!(Branch::from_vv_line("* first").is_err());
+    assert!(Branch::new(&Line::parse("* first")).is_err());
 
-    assert!(Branch::from_vv_line("* first second").is_err());
+    assert!(Branch::new(&Line::parse("* first second")).is_err());
 }
 
 #[cfg(test)]
@@ -153,11 +105,7 @@ pub(crate) use local;
 #[cfg(test)]
 #[allow(unused_macros)]
 macro_rules! branch {
-    ( detached ) => {
-        $crate::git::Branch::Detached
-    };
-
-    ( local_branch $args:tt ) => {
+    ( local $args:tt ) => {
         $crate::git::local!$args
     };
 

@@ -1,4 +1,5 @@
 use crate::execute;
+use crate::git::Branch;
 use crate::git::Repository;
 use std::io;
 
@@ -16,17 +17,14 @@ pub fn clean<P: AsRef<std::path::Path>>(path: &P, repository: Repository, args: 
         }
     };
 
-    for action in actions::actions(&repository) {
-        match action {
-            actions::Action::Skip { branch_name } => {
-                println!("Skipping branch {}", branch_name);
-            }
-
-            actions::Action::Delete { branch_name } => {
-                if !delete_branch(path, branch_name, arg) {
+    for branch in repository.branches.iter() {
+        match branch {
+            Branch::Local { name } => {
+                if !delete_branch(path, name, arg) {
                     break;
                 }
             }
+            Branch::Tracking { .. } => continue,
         }
     }
 }
@@ -114,61 +112,6 @@ mod args {
     fn test_invalid_arg() {
         let sut = parse(&["--invalid"]);
         let expected = None;
-        assert_eq!(sut, expected);
-    }
-}
-
-mod actions {
-    use crate::git::Branch;
-    use crate::git::Repository;
-    use std::iter::Iterator;
-
-    #[derive(Debug, PartialEq, Eq, Hash)]
-    pub enum Action<'a> {
-        Skip { branch_name: &'a str },
-        Delete { branch_name: &'a str },
-    }
-
-    pub fn actions<'a>(repository: &'a Repository) -> impl Iterator<Item = Action<'a>> {
-        repository
-            .branches
-            .iter()
-            .filter_map(|branch| match branch {
-                Branch::Local { name } => {
-                    let item = if *branch == repository.current_branch {
-                        Action::Skip { branch_name: name }
-                    } else {
-                        Action::Delete { branch_name: name }
-                    };
-
-                    Some(item)
-                }
-                Branch::Tracking { .. } => None,
-                Branch::Detached => None,
-            })
-    }
-
-    #[test]
-    fn test_actions() {
-        use std::collections::HashSet;
-
-        let repository = crate::git::repository! {
-            *local_branch("develop"),
-            tracking { "main", remote("main", "origin") },
-            local_branch("feature"),
-        };
-
-        let sut = HashSet::from_iter(actions(&repository));
-
-        let expected = HashSet::from([
-            Action::Skip {
-                branch_name: "develop",
-            },
-            Action::Delete {
-                branch_name: "feature",
-            },
-        ]);
-
         assert_eq!(sut, expected);
     }
 }

@@ -97,7 +97,7 @@ fn test_clean() -> Result<(), Box<dyn std::error::Error>> {
     let sut = git_query.to_repository()?;
 
     let expected = git::repository! {
-        *local_branch("local_checkout"),
+        *local("local_checkout"),
         tracking { "develop", remote("develop", "origin") },
         tracking { "main", remote("main", "origin") },
     };

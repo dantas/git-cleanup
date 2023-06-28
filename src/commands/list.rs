@@ -1,4 +1,4 @@
-use crate::git::{Branch, Repository};
+use crate::git::{Branch, Head, Repository};
 use std::fmt::Display;
 use std::iter::Iterator;
 
@@ -48,11 +48,22 @@ fn print_tracked(repository: &Repository) {
 fn print_branches<F: Fn(&&Branch) -> bool>(repository: &Repository, message: &str, filter: F) {
     println!("{}:", message);
 
+    if let Head::Branch(branch) = &repository.head {
+        if filter(&branch) {
+            println!("    *{}", &repository.head);
+        }
+    };
+
     for branch in repository.branches.iter().filter(filter) {
-        if branch == &repository.current_branch {
-            println!("    *{}", branch);
-        } else {
-            println!("    {}", branch);
+        println!("    {}", branch);
+    }
+}
+
+impl<'a> Display for Head<'a> {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Head::Branch(branch) => branch.fmt(formatter),
+            Head::Detached => write!(formatter, "Detached"),
         }
     }
 }
@@ -68,7 +79,6 @@ impl<'a> Display for Branch<'a> {
                 )
             }
             Branch::Local { name } => write!(formatter, "{}", name),
-            Branch::Detached => write!(formatter, "Detached"),
         }
     }
 }
