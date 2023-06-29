@@ -33,7 +33,7 @@ pub fn print_list_help() {
     println!("list options:");
     println!("    --gone:     List tracking branches that are gone from origin (default option)");
     println!("    --diverged: List tracking branches that diverged from origin");
-    println!("    --all:      List all branches");
+    println!("    --all:      List all local and tracked branches");
     println!("    --tracked:  List all tracked branches");
     println!("    --local:    List local branches");
 }
