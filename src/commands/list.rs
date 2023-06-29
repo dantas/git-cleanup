@@ -11,6 +11,7 @@ pub fn list(repository: &Repository, args: &[&str]) {
     let args = match args::parse(args) {
         Some(mode) => mode,
         None => {
+            println!("option not recognized");
             print_list_help();
             return;
         }

@@ -12,6 +12,7 @@ pub fn clean<P: AsRef<std::path::Path>>(path: &P, repository: Repository, args: 
     let arg = match args::parse(args) {
         Some(mode) => mode,
         None => {
+            println!("option not recognized");
             print_clean_help();
             return;
         }
