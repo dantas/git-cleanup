@@ -73,6 +73,7 @@ fn test_clean() -> Result<(), Box<dyn std::error::Error>> {
             ("touch", ".developfile"),
             ("git", "add", ".developfile"),
             ("git", "commit", "-m", "Develop commit"),
+            ("git", "checkout", "-b", "feature_branch"),
             ("git", "checkout", "main")
 
         root:
@@ -81,24 +82,31 @@ fn test_clean() -> Result<(), Box<dyn std::error::Error>> {
         local:
             ("git", "checkout", "main"),
             ("git", "checkout", "develop"),
-            ("git", "checkout", "-b", "local"),
+            ("git", "checkout", "feature_branch"),
+            ("git", "checkout", "-b", "local_checkout"),
             ("touch", ".localfile"),
             ("git",  "add", ".localfile"),
             ("git", "commit", "-m", "Local commit"),
-            ("git", "checkout", "-b", "local_checkout")
+            ("git", "checkout", "develop")
+
+        remote:
+            ("git", "branch", "-D", "feature_branch")
+
+        local:
+            ("git", "fetch", "--prune")
     };
 
     let git_query = GitQuery::query(&local)?;
     let repository = git_query.to_repository()?;
 
-    commands::clean(&local, repository, &[]);
+    commands::clean(&local, repository, &["--automatic"]);
 
     let git_query = GitQuery::query(&local)?;
     let sut = git_query.to_repository()?;
 
     let expected = git::repository! {
-        *local("local_checkout"),
-        tracking { "develop", remote("develop", "origin", synchronized) },
+        *tracking { "develop", remote("develop", "origin", synchronized) },
+        local("local_checkout"),
         tracking { "main", remote("main", "origin", synchronized) },
     };
 

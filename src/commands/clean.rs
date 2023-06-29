@@ -1,5 +1,7 @@
 use crate::execute;
 use crate::git::Branch;
+use crate::git::RemoteBranch;
+use crate::git::RemoteBranchStatus;
 use crate::git::Repository;
 use std::io;
 
@@ -20,19 +22,28 @@ pub fn clean<P: AsRef<std::path::Path>>(path: &P, repository: Repository, args: 
 
     for branch in repository.branches.iter() {
         match branch {
-            Branch::Local { name } => {
+            Branch::Tracking {
+                name,
+                remote:
+                    RemoteBranch {
+                        status: RemoteBranchStatus::Gone,
+                        ..
+                    },
+                ..
+            } => {
                 if !delete_branch(path, name, arg) {
                     break;
                 }
             }
-            Branch::Tracking { .. } => continue,
+            _ => continue,
         }
     }
 }
 
 pub fn print_clean_help() {
     println!("clean options:");
-    println!("    -step: Ask for user confirmation before deleting each branch");
+    println!("    --step: Ask for user confirmation before deleting each branch (default option)");
+    println!("    --automatic: Delete branches without asking for user output");
 }
 
 type Continue = bool;
@@ -72,7 +83,7 @@ fn notify_step(branch_name: &str) -> Continue {
         return false;
     }
 
-    if line != "y" {
+    if line != "y\n" {
         println!("Understood, aborting cleanup");
         return false;
     }
@@ -84,33 +95,41 @@ mod args {
     #[derive(Clone, Copy, PartialEq, Eq, Debug)]
     pub enum Arg {
         Step,
-        NoMode,
+        Automatic,
     }
 
     pub fn parse(args: &[&str]) -> Option<Arg> {
         match args {
             ["--step"] => Some(Arg::Step),
-            [] => Some(Arg::NoMode),
+            ["--automatic"] => Some(Arg::Automatic),
+            [] => Some(Arg::Step),
             _ => None,
         }
     }
 
     #[test]
-    fn test_step_arg() {
+    fn step_arg() {
         let sut = parse(&["--step"]);
         let expected = Some(Arg::Step);
         assert_eq!(sut, expected);
     }
 
     #[test]
-    fn test_default_arg() {
-        let sut = parse(&[]);
-        let expected = Some(Arg::NoMode);
+    fn automatic_arg() {
+        let sut = parse(&["--automatic"]);
+        let expected = Some(Arg::Automatic);
         assert_eq!(sut, expected);
     }
 
     #[test]
-    fn test_invalid_arg() {
+    fn default_arg() {
+        let sut = parse(&[]);
+        let expected = Some(Arg::Step);
+        assert_eq!(sut, expected);
+    }
+
+    #[test]
+    fn invalid_arg() {
         let sut = parse(&["--invalid"]);
         let expected = None;
         assert_eq!(sut, expected);
