@@ -1,35 +1,43 @@
+use crate::git::RemoteBranchStatus;
+
 #[derive(Debug, Clone, PartialEq, Hash, Eq)]
 pub struct RemoteBranch<'a> {
     pub branch_name: &'a str,
     pub remote_name: &'a str,
+    pub status: RemoteBranchStatus,
 }
 
 impl<'a> RemoteBranch<'a> {
     pub(super) fn parse(string: &'a str) -> Option<Self> {
-        let index_slash;
-
-        if let Some(i) = string.find('/') {
-            index_slash = i;
-        } else {
+        if !RemoteBranch::validate(string) {
             return None;
         }
 
-        if !string.starts_with('[') || !string.ends_with(']') {
-            return None;
-        }
+        let brackless_string = &string[1..string.len() - 1];
 
-        let index_ending = if let Some(index_colon) = string.find(':') {
-            index_colon
-        } else {
-            string.len() - 1
+        let (left, right) = match brackless_string.split_once(':') {
+            Some(pair) => pair,
+            None => (brackless_string, ""),
         };
 
-        let remote_branch = RemoteBranch {
-            remote_name: &string[1..index_slash],
-            branch_name: &string[index_slash + 1..index_ending],
-        };
+        let (remote_name, branch_name) = RemoteBranch::parse_names(left);
+        let status = RemoteBranchStatus::parse(right);
 
-        Some(remote_branch)
+        Some(RemoteBranch {
+            remote_name,
+            branch_name,
+            status,
+        })
+    }
+
+    fn validate(string: &str) -> bool {
+        string.starts_with('[') && string.ends_with(']') && string.find('/').is_some()
+    }
+
+    fn parse_names(left: &str) -> (&str, &str) {
+        // SAFETY: validate() already checked that '/' exists here
+        let index_slash = left.find('/').unwrap();
+        (&left[..index_slash], &left[index_slash + 1..])
     }
 }
 
@@ -45,37 +53,33 @@ impl<'a> std::fmt::Display for RemoteBranch<'a> {
 
 #[test]
 fn test_remote_branch() {
-    let expected = remote!("branch2", "origin");
+    let expected = remote!("branch2", "origin", synchronized);
 
-    if let Some(sut) = RemoteBranch::parse("[origin/branch2]") {
-        assert_eq!(sut, expected)
-    } else {
-        panic!("try_from_vv_column didn't detect valid string");
-    }
+    let sut = RemoteBranch::parse("[origin/branch2]").unwrap();
+
+    assert_eq!(sut, expected);
 }
 
 #[test]
 fn test_remote_branch_ahead_of_origin() {
-    let expected = remote!("main", "origin");
+    let expected = remote!("main", "origin", diverged);
 
-    if let Some(sut) = RemoteBranch::parse("[origin/main: ahead 1]") {
-        assert_eq!(sut, expected)
-    } else {
-        panic!("try_from_vv_column didn't detect valid string");
-    }
+    let sut = RemoteBranch::parse("[origin/main: ahead 1]").unwrap();
+
+    assert_eq!(sut, expected);
 }
 
 #[test]
 fn test_parse_invalid_lines() {
-    if RemoteBranch::parse("origin/branch2]") != None {
+    if RemoteBranch::parse("origin/branch2]").is_some() {
         panic!("try_from_vv_column interpreted missing [ as a valid remote branch");
     }
 
-    if RemoteBranch::parse("[origin/branch2") != None {
+    if RemoteBranch::parse("[origin/branch2").is_some() {
         panic!("try_from_vv_column interpreted missing ] as a valid remote branch");
     }
 
-    if RemoteBranch::parse("originbranch2]") != None {
+    if RemoteBranch::parse("originbranch2]").is_some() {
         panic!("try_from_vv_column interpreted missing / as a valid remote branch");
     }
 }
@@ -83,10 +87,11 @@ fn test_parse_invalid_lines() {
 #[cfg(test)]
 #[allow(unused_macros)]
 macro_rules! remote {
-    ($branch_name:literal, $remote_name:literal) => {
+    ($branch_name:literal, $remote_name:literal, $status:ident) => {
         $crate::git::RemoteBranch {
             branch_name: $branch_name,
             remote_name: $remote_name,
+            status: $crate::git::remote_status!($status),
         }
     };
 }

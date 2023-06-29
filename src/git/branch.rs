@@ -48,7 +48,7 @@ fn tracking_branch() {
 
     let sut = Branch::new(&line).unwrap();
 
-    let expected = git::tracking! {"main", remote("main", "origin")};
+    let expected = git::tracking! {"main", remote("main", "origin", diverged)};
 
     assert_eq!(sut, expected);
 }
@@ -78,10 +78,10 @@ fn test_parse_invalid_lines() {
 #[cfg(test)]
 #[allow(unused_macros)]
 macro_rules! tracking {
-    ($name:literal, remote ( $remote_name:literal, $remote_origin: literal ) ) => {
+    ($name:literal, remote ( $remote_name:literal, $remote_origin: literal, $remote_status:ident ) ) => {
         $crate::git::Branch::Tracking {
             name: $name,
-            remote: crate::git::remote!($remote_name, $remote_origin),
+            remote: crate::git::remote!($remote_name, $remote_origin, $remote_status),
         }
     };
 }

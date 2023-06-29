@@ -37,7 +37,7 @@ fn one_branch() {
     let sut = Repository::parse("* main 73b4084 [origin/main] commit message").unwrap();
 
     let expected = repository! {
-        *tracking { "main", remote("main", "origin") }
+        *tracking { "main", remote("main", "origin", synchronized) }
     };
 
     assert_eq!(sut, expected);
@@ -54,8 +54,8 @@ fn test_multiple_branches() {
     .unwrap();
 
     let expected = repository! {
-        *tracking { "main" , remote("main", "origin") },
-        tracking { "develop" , remote("develop", "origin") },
+        *tracking { "main" , remote("main", "origin", synchronized) },
+        tracking { "develop" , remote("develop", "origin", synchronized) },
     };
 
     assert_eq!(sut, expected);
@@ -72,7 +72,7 @@ fn test_local_branch() {
     .unwrap();
 
     let expected = repository! {
-        *tracking { "main", remote("main", "origin") },
+        *tracking { "main", remote("main", "origin", synchronized) },
         local("local"),
     };
 

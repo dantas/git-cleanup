@@ -13,6 +13,9 @@ pub use repository::*;
 mod remote_branch;
 pub use remote_branch::*;
 
+mod remote_branch_status;
+pub use remote_branch_status::*;
+
 mod branch;
 pub use branch::*;
 

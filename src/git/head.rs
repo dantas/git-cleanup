@@ -50,7 +50,7 @@ fn regular_branch() {
 
     let sut = Head::new(&line).unwrap();
 
-    let expected = head! { tracking {"main", remote("main", "origin")} };
+    let expected = head! { tracking {"main", remote("main", "origin", diverged)} };
 
     assert_eq!(sut, expected);
 }
