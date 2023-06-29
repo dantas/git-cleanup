@@ -1,21 +1,24 @@
 # Git Cleanup
 
-It is a small command line utilitary that deletes local branches that are not present in any origin.  
+It is a small command line utilitary that deletes local branches that are gone from any origin.  
 
 **Status**: In development
 
 # Available Commands
 
 - **--help**: Show this help message
-- **list**: List branches, grouping them by tracked and local
-  - **--help**:     Show list command options
-  - **--all**:       List all branches (default option)
-  - **--tracked**:  List all tracked branches
-  - **--local**:    List local branches
+- **list**: List branches
+  - **--help**:    Show list command options
+  - **--gone**:   List tracking branches that are gone from origin (default option)
+  - **--diverged**: List tracking branches that diverged from origin
+  - **--all**:      List all local and tracked branches
+  - **--tracked**:  List all tracked branches
+  - **--local**:   List local branches
 
-- **clean**: Delete local only branches
-  - **--help**: Show clean command options
-  - **--step**: Require user confirmation before deleting each branch
+- **clean**: Delete local branches that are gone from origin
+  - **--help**:     Show clean command options
+  - **--step**:     Ask for user confirmation before deleting each branch (default option)
+  - **--automatic**: Delete branches without asking for user output
 
 # Disclaimer
 
