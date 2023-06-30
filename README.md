@@ -29,3 +29,7 @@ Use it at your own peril.
 
 I'm not using the lib+bin approach. Integration tests are on their own module, inside the bin crate, behind a feature.  
 Run cargo test with **-F integration** to execute integration tests. 
+
+# Design Decisions
+
+Since this is my first Rust project, I'm choosing to use the minimum amout of crates, forcing me to implement what I need, therefore creating more opportunities to practice the language.
