@@ -30,7 +30,7 @@ Use it at your own peril.
 I'm not using the lib+bin approach. Integration tests are on their own module, inside the bin crate, behind a feature.  
 Run cargo test with **-F integration** to execute integration tests. 
 
-# Design Decisions
+## Design Decisions
 
 Because this is my first Rust project, I'm choosing to use the minimum amout of crates so that I can have more excuses to practice the language.
 This is also why I deviated from the typical parser design.
