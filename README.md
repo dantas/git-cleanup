@@ -32,4 +32,5 @@ Run cargo test with **-F integration** to execute integration tests.
 
 # Design Decisions
 
-Since this is my first Rust project, I'm choosing to use the minimum amout of crates since I want to practice the language.
+Because this is my first Rust project, I'm choosing to use the minimum amout of crates so that I can have more excuses to practice the language.
+This is also why I deviated from the typical parser design.
