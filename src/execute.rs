@@ -30,6 +30,20 @@ fn check_for_success(status: ExitStatus) -> Result<(), ExecuteError> {
     }
 }
 
+#[test]
+fn success_execution() {
+    let some_dir = std::env::current_dir().unwrap();
+    let sut = execute(&some_dir, &"echo", &["Hello world\nMultiple lines"]).unwrap();
+    let expected = "Hello world\nMultiple lines\n";
+    assert_eq!(sut, expected);
+}
+
+#[test]
+fn error_execution() {
+    let some_dir = std::env::current_dir().unwrap();
+    execute(&some_dir, &"git", &["something"]).expect_err("Execute should've failed");
+}
+
 #[derive(Error, Debug)]
 pub enum ExecuteError {
     #[error("Error executing command")]
