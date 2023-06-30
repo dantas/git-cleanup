@@ -81,7 +81,7 @@ fn print_diverged(repository: &Repository) {
 }
 
 fn print_branches(repository: &Repository, message: &str, filter: impl Fn(&&Branch) -> bool) {
-    println!("{}:", message);
+    println!("{message}:");
 
     if let Head::Branch(branch) = &repository.head {
         if filter(&branch) {
@@ -90,7 +90,7 @@ fn print_branches(repository: &Repository, message: &str, filter: impl Fn(&&Bran
     };
 
     for branch in repository.branches.iter().filter(filter) {
-        println!("    {}", branch);
+        println!("    {branch}");
     }
 }
 
