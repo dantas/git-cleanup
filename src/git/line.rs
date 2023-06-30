@@ -32,3 +32,30 @@ impl<'a> std::fmt::Display for Line<'a> {
         write!(formatter, "{}", self.0.join(","))
     }
 }
+
+#[test]
+fn is_head() {
+    let sut = Line::parse("* Hello World");
+    assert!(sut.is_head());
+}
+
+#[test]
+fn split_words() {
+    let sut = Line::parse("Hello World");
+    let expected = ["Hello", "World"];
+    assert_eq!(sut.components(), expected);
+}
+
+#[test]
+fn split_components() {
+    let line = Line::parse("Hello [inside square brackets] World");
+    let expected = ["Hello", "[inside square brackets]", "World"];
+    assert_eq!(line.components(), expected);
+}
+
+#[test]
+fn empty_line() {
+    let line = Line::parse("");
+    let expected: [&str; 0] = [];
+    assert_eq!(line.components(), expected);
+}
