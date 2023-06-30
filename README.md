@@ -27,8 +27,7 @@ Use it at your own peril.
 
 # Developer notes
 
-I'm not using the lib+bin approach. Integration tests are on their own module, inside the bin crate, behind a feature.  
-Run cargo test with **-F integration** to execute integration tests. 
+Tests that execute external binaries like git require the feature flag **testbin**
 
 ## Design Decisions
 
