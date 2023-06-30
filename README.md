@@ -8,17 +8,17 @@ It is a small command line utilitary that deletes local branches that are gone f
 
 - **--help**: Show this help message
 - **list**: List branches
-  - **--help**:    Show list command options
-  - **--gone**:   List tracking branches that are gone from origin (default option)
-  - **--diverged**: List tracking branches that diverged from origin
-  - **--all**:      List all local and tracked branches
-  - **--tracked**:  List all tracked branches
-  - **--local**:   List local branches
+  - **--help**: Show list command options
+  - **--gone**: List tracking branches that are gone from origin (default option)
+  - **--diverged**: List tracking branches that diverged from origin
+  - **--all**: List all local and tracked branches
+  - **--tracked**: List all tracked branches
+  - **--local**: List local branches
 
 - **clean**: Delete local branches that are gone from origin
-  - **--help**:     Show clean command options
-  - **--step**:     Ask for user confirmation before deleting each branch (default option)
-  - **--automatic**: Delete branches without asking for user output
+  - **--help**: Show clean command options
+  - **--step**: Ask for user confirmation before deleting each branch (default option)
+  - **--automatic**: Delete branches without asking for user output
 
 # Disclaimer
 
@@ -27,7 +27,7 @@ Use it at your own peril.
 
 # Developer notes
 
-Tests that execute external binaries like git require the feature flag **testbin**
+Tests that execute external binaries require the feature **testbin**
 
 ## Design Decisions
 
