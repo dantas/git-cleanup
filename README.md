@@ -32,4 +32,4 @@ Run cargo test with **-F integration** to execute integration tests.
 
 # Design Decisions
 
-Since this is my first Rust project, I'm choosing to use the minimum amout of crates, forcing me to implement what I need, therefore creating more opportunities to practice the language.
+Since this is my first Rust project, I'm choosing to use the minimum amout of crates since I want to practice the language.
