@@ -13,4 +13,4 @@ thiserror = "1.0.40"
 rand = "0.8.5"
 
 [features]
-integration = [] # Enable integration tests
+testbin = [] # Enable tests that use external binaries, which are more expensive to run than regular tests

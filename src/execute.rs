@@ -31,6 +31,7 @@ fn check_for_success(status: ExitStatus) -> Result<(), ExecuteError> {
 }
 
 #[test]
+#[cfg(feature = "testbin")]
 fn success_execution() {
     let some_dir = std::env::current_dir().unwrap();
     let sut = execute(&some_dir, &"echo", &["Hello world\nMultiple lines"]).unwrap();
@@ -39,6 +40,7 @@ fn success_execution() {
 }
 
 #[test]
+#[cfg(feature = "testbin")]
 fn error_execution() {
     let some_dir = std::env::current_dir().unwrap();
     execute(&some_dir, &"git", &["something"]).expect_err("Execute should've failed");

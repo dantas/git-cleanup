@@ -3,8 +3,8 @@ mod commands;
 mod execute;
 mod git;
 
-#[cfg(all(test, feature = "integration"))]
-mod integration_tests;
+#[cfg(all(test, feature = "testbin"))]
+mod git_integration_tests;
 
 use args::VecArgs;
 use git::GitQuery;

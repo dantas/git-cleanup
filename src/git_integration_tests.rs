@@ -1,5 +1,3 @@
-// I could've used the lib+bin approach, but in the end I decided to create a custom module to handle integration tests
-
 use crate::commands;
 use crate::execute;
 use crate::git;
