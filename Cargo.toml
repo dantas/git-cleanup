@@ -14,3 +14,9 @@ rand = "0.8.5"
 
 [features]
 testbin = [] # Enable tests that use external binaries, which are more expensive to run than regular tests
+
+[profile.release]
+lto = true
+panic = "abort"
+codegen-units = 1
+strip = true
