@@ -1,31 +1,19 @@
+use crate::args::ListOption;
 use crate::git::{Branch, Head, RemoteBranch, RemoteBranchStatus, Repository};
 use std::fmt::Display;
 use std::iter::Iterator;
 
-pub fn list(repository: &Repository, args: &[&str]) {
-    if args == ["--help"] {
-        print_list_help();
-        return;
-    }
-
-    let args = match args::parse(args) {
-        Some(mode) => mode,
-        None => {
-            println!("option not recognized");
-            print_list_help();
-            return;
-        }
-    };
-
-    match args {
-        args::Arg::Local => print_local(repository),
-        args::Arg::Tracked => print_tracked(repository),
-        args::Arg::Gone => print_gone(repository),
-        args::Arg::Diverged => print_diverged(repository),
-        args::Arg::All => {
+pub fn list(repository: &Repository, option: &ListOption) {
+    match option {
+        ListOption::Help => print_list_help(),
+        ListOption::All => {
             print_local(repository);
             print_tracked(repository);
         }
+        ListOption::Local => print_local(repository),
+        ListOption::Tracked => print_tracked(repository),
+        ListOption::Gone => print_gone(repository),
+        ListOption::Diverged => print_diverged(repository),
     }
 }
 
@@ -115,77 +103,5 @@ impl<'a> Display for Branch<'a> {
             }
             Branch::Local { name } => write!(formatter, "{}", name),
         }
-    }
-}
-
-mod args {
-    #[derive(Clone, Copy, PartialEq, Eq, Debug)]
-    pub enum Arg {
-        Local,
-        Tracked,
-        All,
-        Gone,
-        Diverged,
-    }
-
-    pub fn parse(args: &[&str]) -> Option<Arg> {
-        match args {
-            ["--all"] => Some(Arg::All),
-            ["--tracked"] => Some(Arg::Tracked),
-            ["--local"] => Some(Arg::Local),
-            ["--gone"] => Some(Arg::Gone),
-            ["--diverged"] => Some(Arg::Diverged),
-            [] => Some(Arg::Gone), // default option if no arg is provided
-            _ => None,
-        }
-    }
-
-    #[test]
-    fn local() {
-        let sut = parse(&["--local"]);
-        let expected = Some(Arg::Local);
-        assert_eq!(sut, expected);
-    }
-
-    #[test]
-    fn tracked() {
-        let sut = parse(&["--tracked"]);
-        let expected = Some(Arg::Tracked);
-        assert_eq!(sut, expected);
-    }
-
-    #[test]
-    fn all() {
-        let sut = parse(&["--all"]);
-        let expected = Some(Arg::All);
-        assert_eq!(sut, expected);
-    }
-
-    #[test]
-    fn gone() {
-        let sut = parse(&["--gone"]);
-        let expected = Some(Arg::Gone);
-        assert_eq!(sut, expected);
-    }
-
-    #[test]
-    fn diverged() {
-        let sut = parse(&["--diverged"]);
-        let expected = Some(Arg::Diverged);
-        assert_eq!(sut, expected);
-    }
-
-    #[test]
-    fn test_default_arg() {
-        let sut = parse(&[]);
-        let expected = Some(Arg::Gone);
-        assert_eq!(sut, expected);
-    }
-
-    #[test]
-    fn test_invalid_arg() {
-        let sut = parse(&["invalid"]);
-        let expected = None;
-        assert_eq!(sut, expected);
     }
 }

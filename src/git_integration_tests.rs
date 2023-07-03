@@ -1,4 +1,5 @@
 #![cfg(all(test, feature = "testbin"))]
+use crate::args::CleanOption;
 use crate::commands;
 use crate::execute;
 use crate::git;
@@ -100,7 +101,7 @@ fn test_clean() -> Result<(), Box<dyn std::error::Error>> {
     let git_query = GitQuery::query(&local)?;
     let repository = git_query.to_repository()?;
 
-    commands::clean(&local, repository, &["--automatic"]);
+    commands::clean(local.as_ref(), repository, &CleanOption::Automatic);
 
     let git_query = GitQuery::query(&local)?;
     let sut = git_query.to_repository()?;
