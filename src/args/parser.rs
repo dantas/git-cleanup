@@ -107,6 +107,7 @@ where
         };
 
         match token.as_ref() {
+            "--help" => Ok(ListOption::Help),
             "--all" => Ok(ListOption::All),
             "--tracked" => Ok(ListOption::Tracked),
             "--local" => Ok(ListOption::Local),
@@ -123,6 +124,7 @@ where
         };
 
         match token.as_ref() {
+            "--help" => Ok(CleanOption::Help),
             "--step" => Ok(CleanOption::Step),
             "--automatic" => Ok(CleanOption::Automatic),
             _ => Err(ParseError::CleanOption),

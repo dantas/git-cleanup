@@ -22,6 +22,7 @@ pub enum ProgramCommand {
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum ListOption {
+    Help,
     All,
     Local,
     Tracked,
@@ -31,6 +32,7 @@ pub enum ListOption {
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum CleanOption {
+    Help,
     Step,
     Automatic,
 }
