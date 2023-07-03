@@ -1,3 +1,4 @@
+#![cfg(all(test, feature = "testbin"))]
 use crate::commands;
 use crate::execute;
 use crate::git;

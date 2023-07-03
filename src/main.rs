@@ -2,10 +2,7 @@ mod args;
 mod commands;
 mod execute;
 mod git;
-
-#[cfg(all(test, feature = "testbin"))]
 mod git_integration_tests;
-#[cfg(all(test, feature = "testbin"))]
 mod test_support;
 
 use args::VecArgs;
