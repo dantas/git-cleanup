@@ -21,7 +21,11 @@ pub fn clean(path: &Path, repository: Repository, option: &CleanOption) {
                     },
                 ..
             } => {
-                if !delete_branch(path, name, option) {
+                if *option == CleanOption::Step && !notify_step(name) {
+                    break;
+                }
+
+                if !delete_branch(path, name) {
                     break;
                 }
             }
@@ -36,13 +40,7 @@ pub fn print_clean_help() {
     println!("    --automatic: Delete branches without asking for user output");
 }
 
-type Continue = bool;
-
-fn delete_branch(path: &Path, branch_name: &str, option: &CleanOption) -> Continue {
-    if *option == CleanOption::Step && !notify_step(branch_name) {
-        return false;
-    }
-
+fn delete_branch(path: &Path, branch_name: &str) -> bool {
     let result = execute::execute(&path, &"git", &["branch", "-d", branch_name]);
 
     if result.is_err() {
@@ -52,7 +50,7 @@ fn delete_branch(path: &Path, branch_name: &str, option: &CleanOption) -> Contin
     result.is_ok()
 }
 
-fn notify_step(branch_name: &str) -> Continue {
+fn notify_step(branch_name: &str) -> bool {
     println!("About to delete branch {branch_name}, type y and press enter to continue");
 
     let mut line = String::new();
