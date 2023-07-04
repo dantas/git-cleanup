@@ -19,7 +19,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let path = path_from(&arguments)?;
 
-    fetch_prune_if_necessary(&path, &arguments)?;
+    fetch_prune(&path, &arguments)?;
 
     let git_query = GitQuery::query(&path)?;
     let repository = git_query.to_repository()?;
@@ -61,7 +61,7 @@ fn path_from(arguments: &Arguments) -> Result<PathBuf, std::io::Error> {
     Ok(path)
 }
 
-fn fetch_prune_if_necessary(path: &PathBuf, arguments: &Arguments) -> Result<(), ExecuteError> {
+fn fetch_prune(path: &PathBuf, arguments: &Arguments) -> Result<(), ExecuteError> {
     if arguments.options.contains(&args::ProgramOption::FetchPrune) {
         let _ = execute::execute(path, &"git", &["fetch", "--prune"])?;
     }
