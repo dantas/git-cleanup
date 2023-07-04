@@ -1,4 +1,4 @@
-use crate::git::RemoteBranchStatus;
+use super::RemoteBranchStatus;
 
 #[derive(Debug, Clone, PartialEq, Hash, Eq)]
 pub struct RemoteBranch<'a> {

@@ -5,8 +5,7 @@ mod git;
 mod git_integration_tests;
 mod test_support;
 
-use args::Arguments;
-use args::ProgramCommand;
+use args::{Arguments, ProgramCommand};
 use execute::ExecuteError;
 use git::GitQuery;
 use std::{env, path::PathBuf};

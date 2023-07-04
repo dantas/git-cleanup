@@ -1,6 +1,5 @@
-use crate::git::Branch;
-use crate::git::GitParseError;
-use crate::git::Line;
+use super::line::Line;
+use super::{Branch, GitParseError};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Head<'a> {

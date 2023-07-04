@@ -1,8 +1,6 @@
+use super::line::Line;
+use super::{Branch, GitParseError, Head};
 use std::collections::HashSet;
-
-use crate::git::GitParseError;
-use crate::git::Line;
-use crate::git::{Branch, Head};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Repository<'a> {

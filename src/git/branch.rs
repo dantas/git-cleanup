@@ -1,6 +1,5 @@
-use crate::git::line::Line;
-use crate::git::GitParseError;
-use crate::git::RemoteBranch;
+use super::line::Line;
+use super::{GitParseError, RemoteBranch};
 
 #[cfg(test)]
 use crate::git;

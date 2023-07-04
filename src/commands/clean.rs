@@ -1,9 +1,6 @@
 use crate::args::CleanOption;
 use crate::execute;
-use crate::git::Branch;
-use crate::git::RemoteBranch;
-use crate::git::RemoteBranchStatus;
-use crate::git::Repository;
+use crate::git::{Branch, RemoteBranch, RemoteBranchStatus, Repository};
 use std::io;
 use std::path::Path;
 

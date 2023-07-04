@@ -1,5 +1,4 @@
-use std::process::Command;
-use std::process::ExitStatus;
+use std::process::{Command, ExitStatus};
 use thiserror::Error;
 
 pub fn execute<P, A, S>(path: &P, command: &S, args: &A) -> Result<String, ExecuteError>
