@@ -6,7 +6,7 @@ use std::path::Path;
 
 pub fn clean(path: &Path, repository: Repository, option: &CleanOption) {
     if *option == CleanOption::Help {
-        print_clean_help();
+        print_help();
         return;
     }
 
@@ -34,10 +34,12 @@ pub fn clean(path: &Path, repository: Repository, option: &CleanOption) {
     }
 }
 
-pub fn print_clean_help() {
-    println!("clean options:");
-    println!("    --step: Ask for user confirmation before deleting each branch (default option)");
-    println!("    --automatic: Delete branches without asking for user output");
+#[rustfmt::skip]
+fn print_help() {
+    println!("Options:");
+    println!("    --help:      Print clean options");
+    println!("    --step:      Ask for user confirmation before deleting each branch (default option)");
+    println!("    --automatic: Delete branches without asking for user confirmation");
 }
 
 fn delete_branch(path: &Path, branch_name: &str) -> bool {

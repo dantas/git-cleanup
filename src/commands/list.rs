@@ -5,7 +5,7 @@ use std::iter::Iterator;
 
 pub fn list(repository: &Repository, option: &ListOption) {
     match option {
-        ListOption::Help => print_list_help(),
+        ListOption::Help => print_help(),
         ListOption::All => {
             print_local(repository);
             print_tracked(repository);
@@ -17,8 +17,10 @@ pub fn list(repository: &Repository, option: &ListOption) {
     }
 }
 
-pub fn print_list_help() {
-    println!("list options:");
+#[rustfmt::skip]
+fn print_help() {
+    println!("Options:");
+    println!("    --help:     Print list options");
     println!("    --gone:     List tracking branches that are gone from origin (default option)");
     println!("    --diverged: List tracking branches that diverged from origin");
     println!("    --all:      List all local and tracked branches");

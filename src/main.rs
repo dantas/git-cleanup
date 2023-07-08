@@ -33,14 +33,22 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+// We want to keep the alignment equal among all strings so that we can visually identify wrong indentation
+#[rustfmt::skip]
 fn print_help(arguments: &Arguments) -> bool {
     let print_help = arguments.options.is_empty() && arguments.command.is_none()
         || arguments.options.contains(&args::ProgramOption::Help);
 
     if print_help {
-        println!("Available commands:");
+        println!("Options:");
+        println!("    --help: Print help");
+        println!("    --path <PATH>: Execute operations in another path");
+        println!("    --fetch-prune: Execute git fetch --prune before executing specified command");
+        println!();
+        println!("Commands:");
         println!("    list: List branches");
         println!("    clean: Delete local branches that are gone from origin");
+        println!();
         println!("Execute each comand with --help for available options");
     }
 
