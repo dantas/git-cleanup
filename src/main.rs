@@ -34,16 +34,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn print_help(arguments: &Arguments) -> bool {
-    if arguments.options.contains(&args::ProgramOption::Help) {
-        println!("Commands available:");
+    let print_help = arguments.options.is_empty() && arguments.command.is_none()
+        || arguments.options.contains(&args::ProgramOption::Help);
+
+    if print_help {
+        println!("Available commands:");
         println!("    list: List branches");
         println!("    clean: Delete local branches that are gone from origin");
         println!("Execute each comand with --help for available options");
-
-        true
-    } else {
-        false
     }
+
+    print_help
 }
 
 fn path_from(arguments: &Arguments) -> Result<PathBuf, std::io::Error> {
