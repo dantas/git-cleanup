@@ -13,6 +13,9 @@ impl<'a> Repository<'a> {
         let mut branches = HashSet::new();
         let mut head = None;
 
+        // Ideally we would like to know how many lines we have so that we could
+        // initialize hashset with a specific capacity, but unfortunately the iterator
+        // returned by .lines() does not have a useful .size_hint() implementation
         for line in command_stdout.lines() {
             let line = Line::parse(line);
 
