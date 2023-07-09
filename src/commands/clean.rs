@@ -34,6 +34,7 @@ pub fn clean(path: &Path, repository: Repository, option: &CleanOption) {
     }
 }
 
+// We want to keep the alignment equal among all strings so that we can visually identify wrong indentation
 #[rustfmt::skip]
 fn print_help() {
     println!("Options:");

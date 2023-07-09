@@ -17,6 +17,7 @@ pub fn list(repository: &Repository, option: &ListOption) {
     }
 }
 
+// We want to keep the alignment equal among all strings so that we can visually identify wrong indentation
 #[rustfmt::skip]
 fn print_help() {
     println!("Options:");
