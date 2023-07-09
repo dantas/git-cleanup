@@ -68,6 +68,7 @@ fn error_execution() {
 
 #[cfg(test)]
 #[allow(unused_macros)]
+// Limitation: Command must receive an argument, otherwise the compiler will hit recursion limit
 macro_rules! sequence_execute {
     ( $path:ident : ($command:literal, $($arg:expr),*) ) => {
         // SAFETY: Since this is only used for tests, it is OK to panic if an error occurred
