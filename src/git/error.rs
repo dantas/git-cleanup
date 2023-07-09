@@ -3,13 +3,13 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum GitError {
-    #[error("Error parsing git query: {source}")]
+    #[error("Error parsing git query")]
     Parse {
         #[from]
         source: GitParseError,
     },
 
-    #[error("Error querying git: {source}")]
+    #[error("Error querying git")]
     Query {
         #[from]
         source: execute::ExecuteError,
@@ -18,7 +18,7 @@ pub enum GitError {
 
 #[derive(Error, Debug)]
 pub enum GitParseError {
-    #[error("Unrecognized pattern while parsing branch, {line}")]
+    #[error("Unrecognized pattern while parsing branch: {line}")]
     BranchPattern { line: String },
 
     #[error("Current branch not found")]

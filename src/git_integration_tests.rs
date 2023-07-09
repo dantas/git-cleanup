@@ -8,15 +8,14 @@ use crate::test_support::TempDir;
 use std::env;
 
 #[test]
-fn check_git_is_available() -> Result<(), Box<dyn std::error::Error>> {
-    let current_dir = env::current_dir()?;
-    execute::execute(&current_dir, &"git", &["--version"])?;
-    Ok(())
+fn check_git_is_available() {
+    let current_dir = env::current_dir().unwrap();
+    execute::execute(&current_dir, &"git", &["--version"]).unwrap();
 }
 
 #[test]
-fn test_query_repository() -> Result<(), Box<dyn std::error::Error>> {
-    let root = TempDir::new()?;
+fn test_query_repository() {
+    let root = TempDir::new().unwrap();
     let remote = root.join("remote");
     let local = root.join("local");
 
@@ -43,8 +42,8 @@ fn test_query_repository() -> Result<(), Box<dyn std::error::Error>> {
             ("git", "checkout", "develop")
     };
 
-    let git_query = GitQuery::query(&local)?;
-    let sut = git_query.to_repository()?;
+    let git_query = GitQuery::query(&local).unwrap();
+    let sut = git_query.to_repository().unwrap();
 
     let expected = git::repository! {
         *tracking { "develop", remote("develop", "origin", synchronized) },
@@ -52,13 +51,11 @@ fn test_query_repository() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     assert_eq!(sut, expected);
-
-    Ok(())
 }
 
 #[test]
-fn test_clean() -> Result<(), Box<dyn std::error::Error>> {
-    let root = TempDir::new()?;
+fn test_clean() {
+    let root = TempDir::new().unwrap();
     let remote = root.join("remote");
     let local = root.join("local");
 
@@ -98,13 +95,13 @@ fn test_clean() -> Result<(), Box<dyn std::error::Error>> {
             ("git", "fetch", "--prune")
     };
 
-    let git_query = GitQuery::query(&local)?;
-    let repository = git_query.to_repository()?;
+    let git_query = GitQuery::query(&local).unwrap();
+    let repository = git_query.to_repository().unwrap();
 
     commands::clean(local.as_ref(), repository, &CleanOption::Automatic);
 
-    let git_query = GitQuery::query(&local)?;
-    let sut = git_query.to_repository()?;
+    let git_query = GitQuery::query(&local).unwrap();
+    let sut = git_query.to_repository().unwrap();
 
     let expected = git::repository! {
         *tracking { "develop", remote("develop", "origin", synchronized) },
@@ -113,6 +110,4 @@ fn test_clean() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     assert_eq!(sut, expected);
-
-    Ok(())
 }
