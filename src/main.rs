@@ -10,7 +10,7 @@ use execute::ExecuteError;
 use git::GitQuery;
 use std::{env, path::PathBuf};
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> anyhow::Result<()> {
     let arguments = args::parse_arguments()?;
 
     if print_help(&arguments) {
