@@ -2,7 +2,7 @@
 
 It is a small command line utilitary that deletes local branches that are gone from any origin.  
 
-**Status**: In development
+**Status**: Completed
 
 # Help
 
