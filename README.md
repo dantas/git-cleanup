@@ -35,6 +35,3 @@ Use it at your own peril.
 Tests that execute external binaries require the feature **testbin**  
 Because this is my first Rust project, I'm choosing to use the minimum amout of crates so that I can code more, not less.  
 This is also why I deviated from the typical parser design when parsing git output.  
-I did my best to minimize unnecessary memory allocations.  
-The Vec<u8> outputted by the git binary is reused in the creation of String. This String is kept around so that Repository can have a bunch of &str pointing to it, preventing the allocation of many Strings.
-The only issue left is that HashSet can suffer from [unnecessary realocations](https://github.com/dantas/git-cleanup/blob/4f745f673d74f7ee19532518f954786710352f6d/src/git/repository.rs#L16) because it is created without an appropriate capacity.
