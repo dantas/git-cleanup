@@ -6,10 +6,7 @@ impl<'a> Line<'a> {
     pub(super) fn parse(line: &'a str) -> Self {
         let regex = Regex::new(r"(\[.*\])+|(\S)+").unwrap();
 
-        let captures_iter = regex
-            .captures_iter(line)
-            .filter_map(|c| c.get(0))
-            .map(|m| m.as_str());
+        let captures_iter = regex.find_iter(line).map(|m| m.as_str());
 
         Line(Vec::from_iter(captures_iter))
     }
