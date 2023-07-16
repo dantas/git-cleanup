@@ -17,9 +17,7 @@ fn main() -> anyhow::Result<()> {
         return Ok(());
     }
 
-    let path = path_from(&arguments)?;
-
-    fetch_prune(&path, &arguments)?;
+    let path = process_options(&arguments)?;
 
     let git_query = GitQuery::query(&path)?;
     let repository = git_query.to_repository()?;
@@ -53,6 +51,14 @@ fn print_help(arguments: &Arguments) -> bool {
     }
 
     print_help
+}
+
+fn process_options(arguments: &Arguments) -> anyhow::Result<PathBuf> {
+    let path = path_from(arguments)?;
+
+    fetch_prune(&path, arguments)?;
+
+    Ok(path)
 }
 
 fn path_from(arguments: &Arguments) -> Result<PathBuf, std::io::Error> {
