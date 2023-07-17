@@ -10,12 +10,18 @@ pub struct Repository<'a> {
 
 impl<'a> Repository<'a> {
     pub(super) fn parse(command_stdout: &'a str) -> Result<Self, GitParseError> {
-        let mut branches = HashSet::new();
+        /*
+            Unfortunately the iterator returned by lines() does not have a useful
+            size_hint implementation
+
+            Assumption:
+                Input is small enough where iterating over it twice is cheaper than
+                having HashSet resize itself to accomodate new items
+        */
+        let num_lines = command_stdout.lines().count();
+        let mut branches = HashSet::with_capacity(num_lines);
         let mut head = None;
 
-        // Ideally we would like to know how many lines we have so that we could
-        // initialize hashset with a specific capacity, but unfortunately the iterator
-        // returned by .lines() does not have a useful .size_hint() implementation
         for line in command_stdout.lines() {
             let line = Line::parse(line);
 
