@@ -34,4 +34,3 @@ Use it at your own peril.
 
 Tests that execute external binaries require the feature **testbin**  
 Because this is my first Rust project, I'm choosing to use the minimum amout of crates so that I can code more, not less.  
-I also deviated from the typical parser design (when parsing git output) because I wanted to use some specific Rust features.  
