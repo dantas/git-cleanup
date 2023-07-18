@@ -1,4 +1,4 @@
-use super::line::Line;
+use super::line_parser::{self, LineParser};
 use super::{Branch, GitParseError, Head};
 use std::collections::HashSet;
 
@@ -15,7 +15,7 @@ impl<'a> Repository<'a> {
             size_hint implementation
 
             Assumption:
-                Input is small enough where iterating over it twice is cheaper than
+                Input is small enough that iterating over it twice is cheaper than
                 having HashSet resize itself to accomodate new items
         */
         let num_lines = command_stdout.lines().count();
@@ -23,12 +23,12 @@ impl<'a> Repository<'a> {
         let mut head = None;
 
         for line in command_stdout.lines() {
-            let line = Line::parse(line);
+            let mut parser = line_parser::new_line_parser(line);
 
-            if line.is_head() {
-                head = Some(Head::new(&line)?);
+            if parser.consume_if_head() {
+                head = Some(Head::new(&mut parser)?);
             } else {
-                branches.insert(Branch::new(&line)?);
+                branches.insert(Branch::new(&mut parser)?);
             }
         }
 
@@ -38,6 +38,44 @@ impl<'a> Repository<'a> {
         }
     }
 }
+
+#[cfg(test)]
+#[allow(unused_macros)]
+macro_rules! repository {
+    ( * $type:ident $args:tt $( , $rest_type:ident $rest_args:tt )* $(,)? ) => {
+        {
+            let head = $crate::git::head!($type $args);
+
+            let branches = std::collections::HashSet::from([
+                $($crate::git::branch!{ $rest_type $rest_args }),*
+            ]);
+
+            crate::git::Repository {
+                head,
+                branches,
+            }
+        }
+    };
+
+    ( * $type:ident $( , $rest_type:ident $rest_args:tt )* $(,)? ) => {
+        {
+            let head = $crate::git::head!($type $args);
+
+            let branches = std::collections::HashSet::from([
+                $($crate::git::branch!{ $rest_type $rest_args }),*
+            ]);
+
+            crate::git::Repository {
+                head,
+                branches,
+            }
+        }
+    };
+}
+
+#[cfg(test)]
+#[allow(unused_imports)]
+pub(crate) use repository;
 
 #[test]
 fn one_branch() {
@@ -103,41 +141,3 @@ fn test_dettached_branch() {
 
     assert_eq!(sut, expected);
 }
-
-#[cfg(test)]
-#[allow(unused_macros)]
-macro_rules! repository {
-    ( * $type:ident $args:tt $( , $rest_type:ident $rest_args:tt )* $(,)? ) => {
-        {
-            let head = $crate::git::head!($type $args);
-
-            let branches = std::collections::HashSet::from([
-                $($crate::git::branch!{ $rest_type $rest_args }),*
-            ]);
-
-            crate::git::Repository {
-                head,
-                branches,
-            }
-        }
-    };
-
-    ( * $type:ident $( , $rest_type:ident $rest_args:tt )* $(,)? ) => {
-        {
-            let head = $crate::git::head!($type $args);
-
-            let branches = std::collections::HashSet::from([
-                $($crate::git::branch!{ $rest_type $rest_args }),*
-            ]);
-
-            crate::git::Repository {
-                head,
-                branches,
-            }
-        }
-    };
-}
-
-#[cfg(test)]
-#[allow(unused_imports)]
-pub(crate) use repository;

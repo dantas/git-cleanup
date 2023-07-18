@@ -1,4 +1,4 @@
-use super::line::Line;
+use super::line_parser::LineParser;
 use super::{Branch, GitParseError};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -8,10 +8,11 @@ pub enum Head<'a> {
 }
 
 impl<'a> Head<'a> {
-    pub(super) fn new(line: &Line<'a>) -> Result<Self, GitParseError> {
-        match line.components() {
-            ["(HEAD", ..] => Ok(Head::Detached),
-            _ => Ok(Head::Branch(Branch::new(line)?)),
+    pub(super) fn new(parser: &mut impl LineParser<'a>) -> Result<Self, GitParseError> {
+        if parser.consume_if_detached() {
+            Ok(Head::Detached)
+        } else {
+            Ok(Head::Branch(Branch::new(parser)?))
         }
     }
 }
@@ -34,9 +35,10 @@ pub(crate) use head;
 
 #[test]
 fn detached_head() {
-    let line = Line::parse("* (HEAD detached at 1f02cc2) 1f02cc2 Initial commit");
+    let mut parser =
+        super::line_parser::new_line_parser("(HEAD detached at 1f02cc2) 1f02cc2 Initial commit");
 
-    let sut = Head::new(&line).unwrap();
+    let sut = Head::new(&mut parser).unwrap();
 
     let expected = Head::Detached;
 
@@ -45,9 +47,11 @@ fn detached_head() {
 
 #[test]
 fn regular_branch() {
-    let line = Line::parse("*  main  1f02cc2 [origin/main: ahead by 2] Initial commit");
+    let mut parser = super::line_parser::new_line_parser(
+        "main  1f02cc2 [origin/main: ahead by 2] Initial commit",
+    );
 
-    let sut = Head::new(&line).unwrap();
+    let sut = Head::new(&mut parser).unwrap();
 
     let expected = head! { tracking {"main", remote("main", "origin", diverged)} };
 
