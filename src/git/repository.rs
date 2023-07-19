@@ -9,14 +9,7 @@ pub struct Repository<'a> {
 
 impl<'a> Repository<'a> {
     pub(super) fn parse(query: &'a GitQuery) -> Result<Self, GitParseError> {
-        /*
-            Unfortunately the iterator returned by lines() does not have a useful
-            size_hint implementation
-
-            Assumption:
-                Input is small enough that iterating over it twice is cheaper than
-                having HashSet resize itself to accomodate new items
-        */
+        // Here we assume that count_lines() is cheaper than creating hashset with the wrong capacity and having to allocate memory twice
         let mut branches = HashSet::with_capacity(query.count_lines());
         let mut head = None;
 

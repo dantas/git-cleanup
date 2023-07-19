@@ -34,6 +34,10 @@ impl GitQuery {
         self.0.lines().map(new_line_parser)
     }
 
+    /*
+        Unfortunately the iterator returned by lines() does not have a useful
+        size_hint implementation
+    */
     fn count_lines(&self) -> usize {
         self.0.lines().count()
     }
