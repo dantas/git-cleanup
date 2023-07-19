@@ -30,11 +30,11 @@ use crate::execute;
 pub struct GitQuery(String);
 
 impl GitQuery {
-    pub(self) fn lines(&self) -> impl Iterator<Item = impl LineParser> {
+    fn lines(&self) -> impl Iterator<Item = impl LineParser> {
         self.0.lines().map(new_line_parser)
     }
 
-    pub(self) fn count_lines(&self) -> usize {
+    fn count_lines(&self) -> usize {
         self.0.lines().count()
     }
 }
