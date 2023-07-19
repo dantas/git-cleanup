@@ -13,11 +13,11 @@ impl<'a> Repository<'a> {
         let mut branches = HashSet::with_capacity(query.count_lines());
         let mut head = None;
 
-        for mut parser in query.lines() {
-            if parser.consume_if_head() {
-                head = Some(Head::new(&mut parser)?);
+        for mut line_parser in query.lines() {
+            if line_parser.consume_if_head() {
+                head = Some(Head::new(&mut line_parser)?);
             } else {
-                branches.insert(Branch::new(&mut parser)?);
+                branches.insert(Branch::new(&mut line_parser)?);
             }
         }
 
