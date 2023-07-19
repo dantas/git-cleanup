@@ -10,7 +10,7 @@ use std::env;
 #[test]
 fn check_git_is_available() {
     let current_dir = env::current_dir().unwrap();
-    execute::execute(&current_dir, &"git", &["--version"]).unwrap();
+    execute::execute(&current_dir, "git", &["--version"]).unwrap();
 }
 
 #[test]

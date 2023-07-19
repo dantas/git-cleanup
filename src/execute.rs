@@ -1,15 +1,13 @@
 use std::process::{Command, ExitStatus};
 use thiserror::Error;
 
-pub fn execute<P, A, S>(path: &P, command: &S, args: &A) -> Result<String, ExecuteError>
+pub fn execute<P>(path: &P, command: &str, args: &[&str]) -> Result<String, ExecuteError>
 where
     P: AsRef<std::path::Path>,
-    A: AsRef<[S]> + IntoIterator<Item = S>,
-    S: AsRef<std::ffi::OsStr>,
 {
     let mut command = Command::new(command);
 
-    command.current_dir(path).args(args.as_ref());
+    command.current_dir(path).args(args);
 
     let output = command.output()?;
 
@@ -54,7 +52,7 @@ pub enum ExecuteError {
 #[cfg(feature = "testbin")]
 fn success_execution() {
     let some_dir = std::env::current_dir().unwrap();
-    let sut = execute(&some_dir, &"echo", &["Hello world\nMultiple lines"]).unwrap();
+    let sut = execute(&some_dir, "echo", &["Hello world\nMultiple lines"]).unwrap();
     let expected = "Hello world\nMultiple lines\n";
     assert_eq!(sut, expected);
 }
@@ -63,7 +61,7 @@ fn success_execution() {
 #[cfg(feature = "testbin")]
 fn error_execution() {
     let some_dir = std::env::current_dir().unwrap();
-    execute(&some_dir, &"git", &["something"]).expect_err("Execute should've failed");
+    execute(&some_dir, "git", &["something"]).expect_err("Execute should've failed");
 }
 
 #[cfg(test)]
@@ -72,7 +70,7 @@ fn error_execution() {
 macro_rules! sequence_execute {
     ( $path:ident : ($command:literal, $($arg:expr),*) ) => {
         // SAFETY: Since this is only used for tests, it is OK to panic if an error occurred
-        let _ = $crate::execute::execute(&$path, &$command, &[$($arg),*]).unwrap();
+        let _ = $crate::execute::execute(&$path, $command, &[$($arg),*]).unwrap();
     };
 
     ( $path:ident : $($command_and_args:tt),+ ) => {

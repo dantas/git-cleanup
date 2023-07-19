@@ -44,7 +44,7 @@ fn print_help() {
 }
 
 fn delete_branch(path: &Path, branch_name: &str) -> bool {
-    let result = execute::execute(&path, &"git", &["branch", "-d", branch_name]);
+    let result = execute::execute(&path, "git", &["branch", "-d", branch_name]);
 
     if result.is_err() {
         println!("An error occurred while deleting branch {branch_name}, aborting cleanup")

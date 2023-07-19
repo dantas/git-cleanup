@@ -78,7 +78,7 @@ fn path_from(arguments: &Arguments) -> Result<PathBuf, std::io::Error> {
 
 fn fetch_prune(path: &PathBuf, arguments: &Arguments) -> Result<(), ExecuteError> {
     if arguments.options.contains(&args::ProgramOption::FetchPrune) {
-        let _ = execute::execute(path, &"git", &["fetch", "--prune"])?;
+        let _ = execute::execute(path, "git", &["fetch", "--prune"])?;
     }
 
     Ok(())
