@@ -1,5 +1,4 @@
-use super::line_parser::{self, LineParser};
-use super::{Branch, GitParseError, Head};
+use super::{Branch, GitParseError, GitQuery, Head, LineParser};
 use std::collections::HashSet;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -9,7 +8,7 @@ pub struct Repository<'a> {
 }
 
 impl<'a> Repository<'a> {
-    pub(super) fn parse(command_stdout: &'a str) -> Result<Self, GitParseError> {
+    pub(super) fn parse(query: &'a GitQuery) -> Result<Self, GitParseError> {
         /*
             Unfortunately the iterator returned by lines() does not have a useful
             size_hint implementation
@@ -18,13 +17,10 @@ impl<'a> Repository<'a> {
                 Input is small enough that iterating over it twice is cheaper than
                 having HashSet resize itself to accomodate new items
         */
-        let num_lines = command_stdout.lines().count();
-        let mut branches = HashSet::with_capacity(num_lines);
+        let mut branches = HashSet::with_capacity(query.count_lines());
         let mut head = None;
 
-        for line in command_stdout.lines() {
-            let mut parser = line_parser::new_line_parser(line);
-
+        for mut parser in query.lines() {
             if parser.consume_if_head() {
                 head = Some(Head::new(&mut parser)?);
             } else {
@@ -79,7 +75,9 @@ pub(crate) use repository;
 
 #[test]
 fn one_branch() {
-    let sut = Repository::parse("* main 73b4084 [origin/main] commit message").unwrap();
+    let query = GitQuery("* main 73b4084 [origin/main] commit message".to_string());
+
+    let sut = Repository::parse(&query).unwrap();
 
     let expected = repository! {
         *tracking { "main", remote("main", "origin", synchronized) }
@@ -90,13 +88,13 @@ fn one_branch() {
 
 #[test]
 fn test_multiple_branches() {
-    let sut = Repository::parse(
-        "\
-        * main 73b4084 [origin/main] commit message\n\
-        develop 73b4084 [origin/develop] commit message\
-    ",
-    )
-    .unwrap();
+    let query = GitQuery(
+        "* main 73b4084 [origin/main] commit message\n\
+         develop 73b4084 [origin/develop] commit message"
+            .to_string(),
+    );
+
+    let sut = Repository::parse(&query).unwrap();
 
     let expected = repository! {
         *tracking { "main" , remote("main", "origin", synchronized) },
@@ -108,13 +106,13 @@ fn test_multiple_branches() {
 
 #[test]
 fn test_local_branch() {
-    let sut = Repository::parse(
-        "\
-        * main 73b4084 [origin/main] commit message\n\
-        local 73b4084 commit message\
-    ",
-    )
-    .unwrap();
+    let query = GitQuery(
+        "* main 73b4084 [origin/main] commit message\n\
+         local 73b4084 commit message"
+            .to_string(),
+    );
+
+    let sut = Repository::parse(&query).unwrap();
 
     let expected = repository! {
         *tracking { "main", remote("main", "origin", synchronized) },
@@ -126,13 +124,13 @@ fn test_local_branch() {
 
 #[test]
 fn test_dettached_branch() {
-    let sut = Repository::parse(
-        "\
-        * (HEAD detached at 1f02cc2) 1f02cc2 Initial commit\n\
-        local 73b4084 commit message\
-    ",
-    )
-    .unwrap();
+    let query = GitQuery(
+        "* (HEAD detached at 1f02cc2) 1f02cc2 Initial commit\n\
+         local 73b4084 commit message"
+            .to_string(),
+    );
+
+    let sut = Repository::parse(&query).unwrap();
 
     let expected = repository! {
         *detached,

@@ -1,5 +1,4 @@
-use super::line_parser::LineParser;
-use super::{Branch, GitParseError};
+use super::{Branch, GitParseError, LineParser};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Head<'a> {

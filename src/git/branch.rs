@@ -1,5 +1,4 @@
-use super::line_parser::{LineComponents, LineParser};
-use super::{GitParseError, RemoteBranch};
+use super::{GitParseError, LineComponents, LineParser, RemoteBranch};
 
 #[derive(Debug, Clone, PartialEq, Hash, Eq)]
 pub enum Branch<'a> {
