@@ -19,7 +19,7 @@ pub(super) struct LineComponents<'a> {
 
 pub(super) fn new_line_parser(line: &str) -> impl LineParser {
     let regex = COMPONENTS_REGEX.get_or_init(|| Regex::new(r"(\[.*\])+|(\S)+").unwrap());
-    let find_iter: regex::Matches<'_, '_> = regex.find_iter(line);
+    let find_iter = regex.find_iter(line);
     let iter = find_iter.map(|m| m.as_str());
     LineParserStruct {
         line,
