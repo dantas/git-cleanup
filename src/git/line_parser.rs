@@ -8,6 +8,7 @@ pub(super) trait LineParser<'a> {
     fn consume_if_head(&mut self) -> bool;
     fn consume_if_detached(&mut self) -> bool;
     fn consume_components(&mut self) -> Option<LineComponents<'a>>;
+    fn line(&self) -> &'a str;
 }
 
 #[derive(PartialEq, Eq, Debug)]
@@ -20,12 +21,19 @@ pub(super) fn new_line_parser(line: &str) -> impl LineParser {
     let regex = COMPONENTS_REGEX.get_or_init(|| Regex::new(r"(\[.*\])+|(\S)+").unwrap());
     let find_iter: regex::Matches<'_, '_> = regex.find_iter(line);
     let iter = find_iter.map(|m| m.as_str());
-    LineParserStruct(iter.peekable())
+    LineParserStruct {
+        line,
+        iter: iter.peekable(),
+    }
 }
 
-struct LineParserStruct<'a, I>(Peekable<I>)
+struct LineParserStruct<'a, I>
 where
-    I: Iterator<Item = &'a str>;
+    I: Iterator<Item = &'a str>,
+{
+    iter: Peekable<I>,
+    line: &'a str, // For debugging purposes
+}
 
 impl<'a, I> LineParser<'a> for LineParserStruct<'a, I>
 where
@@ -40,14 +48,18 @@ where
     }
 
     fn consume_components(&mut self) -> Option<LineComponents<'a>> {
-        let branch_name = self.0.next()?;
-        let _ = self.0.next()?;
-        let maybe_origin_branch = self.0.next()?;
+        let branch_name = self.iter.next()?;
+        let _ = self.iter.next()?;
+        let maybe_origin_branch = self.iter.next()?;
 
         Some(LineComponents {
             branch_name,
             maybe_origin_branch,
         })
+    }
+
+    fn line(&self) -> &'a str {
+        self.line
     }
 }
 
@@ -56,21 +68,15 @@ where
     I: Iterator<Item = &'a str>,
 {
     fn consume_if_token(&mut self, expected_token: &'static str) -> bool {
-        match self.0.peek() {
+        match self.iter.peek() {
             Some(peeked_token) if *peeked_token == expected_token => {
-                let _ = self.0.next();
+                let _ = self.iter.next();
                 true
             }
             _ => false,
         }
     }
 }
-
-// impl<'a> std::fmt::Display for OldLine<'a> {
-//     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-//         write!(formatter, "{}", self.0.join(","))
-//     }
-// }
 
 #[test]
 fn is_head() {

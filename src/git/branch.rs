@@ -18,7 +18,7 @@ impl<'a> Branch<'a> {
         match parser.consume_components() {
             Some(components) => Ok(Branch::from_components(components)),
             None => Err(GitParseError::BranchPattern {
-                line: "Unrecognized pattern".to_string(), // TODO: Find what to do with this
+                line: parser.line().to_string(),
             }),
         }
     }
