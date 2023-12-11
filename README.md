@@ -1,6 +1,6 @@
 # Git Cleanup
 
-It is a small command line utilitary that deletes local branches that are gone from any origin.  
+It is a small CLI tool that deletes local branches that are gone from any origin.  
 
 **Status**: Completed
 
